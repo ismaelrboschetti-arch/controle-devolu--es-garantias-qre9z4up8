@@ -209,10 +209,22 @@ export default function NewRequest() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Vendedor que fez a venda *</Label>
-                  <Input
+                  <Select
                     value={formData.seller}
-                    onChange={(e) => setFormData({ ...formData, seller: e.target.value })}
-                  />
+                    onValueChange={(v) => setFormData({ ...formData, seller: v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Adrian">Adrian</SelectItem>
+                      <SelectItem value="Alex">Alex</SelectItem>
+                      <SelectItem value="Eric">Eric</SelectItem>
+                      <SelectItem value="Lucas Orlando">Lucas Orlando</SelectItem>
+                      <SelectItem value="Lucas Prestes">Lucas Prestes</SelectItem>
+                      <SelectItem value="Northon">Northon</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label>Data da compra *</Label>
