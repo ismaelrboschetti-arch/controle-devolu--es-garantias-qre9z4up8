@@ -1,28 +1,57 @@
-/* Main App Component - Handles routing (using react-router-dom), query client and other providers - use this file to add all routes */
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import Index from './pages/Index'
-import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
-
-// ONLY IMPORT AND RENDER WORKING PAGES, NEVER ADD PLACEHOLDER COMPONENTS OR PAGES IN THIS FILE
-// AVOID REMOVING ANY CONTEXT PROVIDERS FROM THIS FILE (e.g. TooltipProvider, Toaster, Sonner)
+import Index from './pages/Index'
+import ProcessList from './pages/ProcessList'
+import ProcessDetails from './pages/ProcessDetails'
+import NewRequest from './pages/NewRequest'
+import NotFound from './pages/NotFound'
+import { ProcessProvider } from './contexts/ProcessContext'
 
 const App = () => (
   <BrowserRouter future={{ v7_startTransition: false, v7_relativeSplatPath: false }}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES MUST BE ADDED HERE */}
-        </Route>
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </TooltipProvider>
+    <ProcessProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner position="top-right" richColors />
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/" element={<Index />} />
+            <Route path="/processos" element={<ProcessList />} />
+            <Route path="/processos/novo" element={<NewRequest />} />
+            <Route path="/processos/:id" element={<ProcessDetails />} />
+            {/* Placeholder routes to avoid 404s in navigation */}
+            <Route
+              path="/fornecedores"
+              element={
+                <div className="p-8 font-semibold text-slate-500">
+                  Módulo de Fornecedores em construção.
+                </div>
+              }
+            />
+            <Route
+              path="/clientes"
+              element={
+                <div className="p-8 font-semibold text-slate-500">
+                  Módulo de Clientes em construção.
+                </div>
+              }
+            />
+            <Route
+              path="/relatorios"
+              element={
+                <div className="p-8 font-semibold text-slate-500">
+                  Módulo de Relatórios em construção.
+                </div>
+              }
+            />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </TooltipProvider>
+    </ProcessProvider>
   </BrowserRouter>
 )
 

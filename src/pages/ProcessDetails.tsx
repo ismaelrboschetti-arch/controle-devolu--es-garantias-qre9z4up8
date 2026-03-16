@@ -1,0 +1,149 @@
+import { useParams, Link, useNavigate } from 'react-router-dom'
+import { ArrowLeft, AlertTriangle, CalendarDays, User, Package, Receipt } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { useProcessStore } from '@/contexts/ProcessContext'
+import { StatusBadge } from '@/components/StatusBadge'
+import { ProcessTimeline } from '@/components/process/ProcessTimeline'
+import { ActionPanel } from '@/components/process/ActionPanel'
+
+export default function ProcessDetails() {
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const { processes } = useProcessStore()
+  const process = processes.find((p) => p.id === id)
+
+  if (!process) {
+    return (
+      <div className="text-center py-20">
+        Processo não encontrado.{' '}
+        <Button variant="link" onClick={() => navigate('/processos')}>
+          Voltar
+        </Button>
+      </div>
+    )
+  }
+
+  const formatCurrency = (val: number) =>
+    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val)
+  const isOverdue =
+    process.slaDays > 60 && process.status !== 'Crédito Liberado' && process.status !== 'Finalizado'
+
+  return (
+    <div className="flex flex-col gap-6 animate-slide-up pb-10">
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate('/processos')}
+          className="shrink-0"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-3">
+            {process.id} <StatusBadge status={process.status} className="text-sm" />
+          </h1>
+          <p className="text-slate-500 text-sm mt-1">
+            {process.type} • Iniciado em {process.requestDate}
+          </p>
+        </div>
+      </div>
+
+      {isOverdue && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+          <div>
+            <h4 className="font-semibold text-amber-900">Prazo Legal Excedido (60 dias)</h4>
+            <p className="text-sm text-amber-700 mt-1">
+              Este processo de garantia excedeu o limite do CDC. O crédito antecipado ao cliente é
+              recomendado.
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="border-none shadow-sm">
+            <CardHeader className="pb-3 border-b">
+              <CardTitle className="text-lg">Dados da Solicitação</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-slate-500 flex items-center gap-1">
+                    <User className="w-3 h-3" /> Cliente
+                  </p>
+                  <p className="font-semibold text-slate-800">{process.customer}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-slate-500 flex items-center gap-1">
+                    <Package className="w-3 h-3" /> Fornecedor
+                  </p>
+                  <p className="font-semibold text-slate-800">{process.supplier}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-slate-500 flex items-center gap-1">
+                    <Receipt className="w-3 h-3" /> Produto / SKU
+                  </p>
+                  <p className="font-semibold text-slate-800">
+                    {process.product}{' '}
+                    <span className="text-slate-400 font-normal">({process.sku})</span>
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-slate-500">Valor Reivindicado</p>
+                  <p className="font-bold text-brand-blue text-lg">
+                    {formatCurrency(process.value)}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-sm">
+            <CardHeader className="pb-3 border-b">
+              <CardTitle className="text-lg">Linha do Tempo</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-8 pl-4">
+              <ProcessTimeline currentStatus={process.status} />
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="space-y-6">
+          <Card className="border-none shadow-sm bg-slate-900 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-slate-800 rounded-lg">
+                  <CalendarDays className="w-5 h-5 text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-slate-400 text-sm">Tempo Decorrido</p>
+                  <p className="text-2xl font-bold">{process.slaDays} dias</p>
+                </div>
+              </div>
+              <div className="w-full bg-slate-800 rounded-full h-2 mb-2">
+                <div
+                  className={`h-2 rounded-full ${isOverdue ? 'bg-amber-500' : 'bg-blue-500'}`}
+                  style={{ width: `${Math.min((process.slaDays / 60) * 100, 100)}%` }}
+                ></div>
+              </div>
+              <p className="text-xs text-slate-400 text-right">Limite Legal: 60 dias</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-sm">
+            <CardHeader className="pb-3 border-b">
+              <CardTitle className="text-lg">Ações Disponíveis</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <ActionPanel process={process} />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  )
+}

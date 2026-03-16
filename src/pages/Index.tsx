@@ -1,12 +1,20 @@
-/* Home Page - Replace this page layout, components, content, behavior with what you want and translate to the language of the user */
-const Index = () => {
+import { StatCards } from '@/components/dashboard/StatCards'
+import { DashboardCharts } from '@/components/dashboard/DashboardCharts'
+import { OverdueTable } from '@/components/dashboard/OverdueTable'
+
+export default function Index() {
   return (
-    <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-6">
-        This is a example page ready to be rewritten with your own content
-      </h1>
+    <div className="flex flex-col gap-8 animate-fade-in pb-8">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Dashboard</h1>
+        <p className="text-slate-500 mt-1">
+          Visão geral financeira e operacional de devoluções e garantias.
+        </p>
+      </div>
+
+      <StatCards />
+      <DashboardCharts />
+      <OverdueTable />
     </div>
   )
 }
-
-export default Index
