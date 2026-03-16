@@ -10,9 +10,12 @@ export function ActionPanel({ process }: { process: Process }) {
   const handleAction = (newStatus: Process['status'], message: string) => {
     updateStatus(process.id, newStatus)
     toast.success(message)
-    // Simulate email notification
+
+    const contactInfo = [process.customerEmail, process.customerPhone].filter(Boolean).join(' e ')
+    const target = contactInfo ? `para ${contactInfo}` : 'ao cliente via Email/WhatsApp'
+
     setTimeout(() => {
-      toast('Notificação enviada ao cliente via Email/WhatsApp', { icon: '✉️' })
+      toast(`Notificação de atualização enviada ${target}`, { icon: '📱' })
     }, 1500)
   }
 

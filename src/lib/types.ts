@@ -37,6 +37,10 @@ export interface Process {
   returnDescription?: string
   otherReason?: string
 
+  // Contact Info
+  customerEmail?: string
+  customerPhone?: string
+
   // Media & Tracking
   evidenceUrls?: string[]
   autoApproved?: boolean

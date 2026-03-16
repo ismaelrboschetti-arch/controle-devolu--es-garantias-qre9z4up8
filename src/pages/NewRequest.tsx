@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -13,11 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { useProcessStore } from '@/contexts/ProcessContext'
 import { ProcessType, ProcessStatus } from '@/lib/types'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-import { Search, UploadCloud, X } from 'lucide-react'
+import { Search, UploadCloud, X, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
 
 export default function NewRequest() {
   const navigate = useNavigate()
@@ -31,6 +32,8 @@ export default function NewRequest() {
     purchaseDate: '',
     invoiceNumber: '',
     sku: '',
+    customerEmail: '',
+    customerPhone: '',
     applicationDate: '',
     applicationKm: '',
     defectDate: '',
@@ -42,6 +45,13 @@ export default function NewRequest() {
   })
 
   const [files, setFiles] = useState<{ file: File; url: string }[]>([])
+  const [invoiceStatus, setInvoiceStatus] = useState<'idle' | 'loading' | 'found' | 'not_found'>(
+    'idle',
+  )
+  const [validationMsg, setValidationMsg] = useState<{
+    type: 'success' | 'warning' | 'error'
+    text: string
+  } | null>(null)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -57,7 +67,95 @@ export default function NewRequest() {
     setFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
+  const handleSearchInvoice = () => {
+    if (!formData.invoiceNumber) return
+    setInvoiceStatus('loading')
+    setValidationMsg(null)
+
+    setTimeout(() => {
+      // Mock database
+      const mockInvoices: Record<string, any> = {
+        'NF-123': {
+          seller: 'Adrian',
+          purchaseDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          sku: 'FA-100',
+          email: 'joao@email.com',
+          phone: '(11) 99999-9999',
+        },
+        'NF-456': {
+          seller: 'Alex',
+          purchaseDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          sku: 'AM-200',
+          email: 'maria@email.com',
+          phone: '(11) 98888-8888',
+        },
+        'NF-789': {
+          seller: 'Eric',
+          purchaseDate: new Date(Date.now() - 400 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split('T')[0],
+          sku: 'PF-300',
+          email: 'jose@email.com',
+          phone: '(11) 97777-7777',
+        },
+      }
+
+      const found = mockInvoices[formData.invoiceNumber.toUpperCase()]
+      if (found) {
+        setFormData((prev) => ({
+          ...prev,
+          seller: found.seller,
+          purchaseDate: found.purchaseDate,
+          sku: found.sku,
+          customerEmail: prev.customerEmail || found.email,
+          customerPhone: prev.customerPhone || found.phone,
+        }))
+        setInvoiceStatus('found')
+        toast.success('Nota fiscal encontrada e dados preenchidos automaticamente.')
+      } else {
+        setInvoiceStatus('not_found')
+      }
+    }, 1000)
+  }
+
+  useEffect(() => {
+    if (!formData.purchaseDate) {
+      setValidationMsg(null)
+      return
+    }
+
+    const pDate = new Date(formData.purchaseDate)
+    const today = new Date()
+    const diffDays = Math.floor((today.getTime() - pDate.getTime()) / (1000 * 60 * 60 * 24))
+
+    if (type === 'Devolução Comum') {
+      if (diffDays > 7) {
+        setValidationMsg({
+          type: 'error',
+          text: 'Prazo de 7 dias para devolução simples expirado.',
+        })
+      } else {
+        setValidationMsg({
+          type: 'success',
+          text: `Prazo válido. (${7 - diffDays} dias restantes para devolução)`,
+        })
+      }
+    } else if (type === 'Garantia') {
+      if (diffDays > 365) {
+        setValidationMsg({ type: 'error', text: 'Prazo de garantia de 1 ano expirado.' })
+      } else {
+        setValidationMsg({
+          type: 'success',
+          text: `Garantia ativa. (${365 - diffDays} dias restantes)`,
+        })
+      }
+    }
+  }, [formData.purchaseDate, type])
+
   const handleSubmit = () => {
+    if (!formData.customerEmail || !formData.customerPhone) {
+      return toast.error('Preencha os campos de contato (E-mail e WhatsApp).')
+    }
     if (!formData.seller || !formData.purchaseDate || !formData.invoiceNumber || !formData.sku) {
       return toast.error('Preencha os campos obrigatórios comuns.')
     }
@@ -103,6 +201,8 @@ export default function NewRequest() {
       type,
       category: 'Outros',
       customer: 'Não Informado',
+      customerEmail: formData.customerEmail,
+      customerPhone: formData.customerPhone,
       product: 'Não Informado',
       sku: formData.sku,
       supplier: 'Não Informado',
@@ -132,11 +232,14 @@ export default function NewRequest() {
 
     if (autoApproved) {
       toast.success('Solicitação aprovada automaticamente!', {
-        description: 'Notificação enviada ao cliente e vendedor via e-mail/WhatsApp.',
+        description: `Notificação enviada para ${formData.customerEmail} e WhatsApp ${formData.customerPhone}.`,
         icon: '✅',
       })
     } else {
-      toast.success('Solicitação criada com sucesso!')
+      toast.success('Solicitação criada com sucesso!', {
+        description: `Notificações de acompanhamento enviadas para ${formData.customerEmail} e WhatsApp.`,
+        icon: '📧',
+      })
     }
     navigate(`/processos/${id}`)
   }
@@ -207,9 +310,62 @@ export default function NewRequest() {
           ) : (
             <div className="space-y-6 animate-fade-in">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2 md:col-span-2">
+                  <Label>Nota fiscal de compra *</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={formData.invoiceNumber}
+                      onChange={(e) => {
+                        setFormData({ ...formData, invoiceNumber: e.target.value })
+                        if (invoiceStatus !== 'idle') setInvoiceStatus('idle')
+                      }}
+                      placeholder="Ex: NF-123"
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      onClick={handleSearchInvoice}
+                      disabled={!formData.invoiceNumber || invoiceStatus === 'loading'}
+                      variant="secondary"
+                    >
+                      {invoiceStatus === 'loading' ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Search className="w-4 h-4 mr-2" />
+                      )}
+                      Buscar NF
+                    </Button>
+                  </div>
+                  {invoiceStatus === 'not_found' && (
+                    <p className="text-sm text-red-500 font-medium mt-1">
+                      Nota Fiscal não encontrada. Por favor, verifique o número ou preencha
+                      manualmente
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>E-mail para notificações *</Label>
+                  <Input
+                    type="email"
+                    value={formData.customerEmail}
+                    onChange={(e) => setFormData({ ...formData, customerEmail: e.target.value })}
+                    placeholder="cliente@email.com"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>WhatsApp (Celular) *</Label>
+                  <Input
+                    value={formData.customerPhone}
+                    onChange={(e) => setFormData({ ...formData, customerPhone: e.target.value })}
+                    placeholder="(00) 00000-0000"
+                  />
+                </div>
+
                 <div className="space-y-2">
                   <Label>Vendedor que fez a venda *</Label>
                   <Select
+                    disabled={invoiceStatus === 'found'}
                     value={formData.seller}
                     onValueChange={(v) => setFormData({ ...formData, seller: v })}
                   >
@@ -230,24 +386,41 @@ export default function NewRequest() {
                   <Label>Data da compra *</Label>
                   <Input
                     type="date"
+                    disabled={invoiceStatus === 'found'}
                     value={formData.purchaseDate}
                     onChange={(e) => setFormData({ ...formData, purchaseDate: e.target.value })}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label>Nota fiscal de compra *</Label>
-                  <Input
-                    value={formData.invoiceNumber}
-                    onChange={(e) => setFormData({ ...formData, invoiceNumber: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
+                <div className="space-y-2 md:col-span-2">
                   <Label>Código do produto *</Label>
                   <Input
+                    disabled={invoiceStatus === 'found'}
                     value={formData.sku}
                     onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
                   />
                 </div>
+
+                {validationMsg && (
+                  <div className="md:col-span-2 mt-2">
+                    <Alert
+                      variant={validationMsg.type === 'error' ? 'destructive' : 'default'}
+                      className={cn(
+                        validationMsg.type === 'success' &&
+                          'border-emerald-500 text-emerald-700 bg-emerald-50 [&>svg]:text-emerald-500',
+                      )}
+                    >
+                      {validationMsg.type === 'error' ? (
+                        <AlertCircle className="h-4 w-4" />
+                      ) : (
+                        <CheckCircle2 className="h-4 w-4" />
+                      )}
+                      <AlertTitle>
+                        {validationMsg.type === 'error' ? 'Atenção' : 'Tudo certo'}
+                      </AlertTitle>
+                      <AlertDescription>{validationMsg.text}</AlertDescription>
+                    </Alert>
+                  </div>
+                )}
               </div>
 
               {type === 'Garantia' ? (

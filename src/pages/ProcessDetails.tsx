@@ -92,6 +92,12 @@ export default function ProcessDetails() {
                     <User className="w-3 h-3" /> Cliente
                   </p>
                   <p className="font-semibold text-slate-800">{process.customer}</p>
+                  {(process.customerEmail || process.customerPhone) && (
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      {process.customerEmail}{' '}
+                      {process.customerPhone && `• ${process.customerPhone}`}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs font-medium text-slate-500 flex items-center gap-1">
