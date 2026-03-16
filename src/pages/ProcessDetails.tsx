@@ -53,11 +53,6 @@ export default function ProcessDetails() {
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex flex-wrap items-center gap-3">
               {process.id}
               <StatusBadge status={process.status} className="text-sm" />
-              {process.autoApproved && (
-                <span className="text-xs bg-purple-100 text-purple-700 px-2.5 py-1 rounded-md font-bold tracking-wide uppercase">
-                  Auto-Aprovado
-                </span>
-              )}
             </h1>
             <p className="text-slate-500 text-sm mt-1">
               {process.type} • Iniciado em {process.requestDate}

@@ -1,5 +1,5 @@
 export type ProcessStatus =
-  | 'Aguardando Autorização'
+  | 'Pendente de Análise'
   | 'NF Recusada'
   | 'Produto Recebido'
   | 'Enviado ao Fornecedor'
@@ -43,7 +43,6 @@ export interface Process {
 
   // Media & Tracking
   evidenceUrls?: string[]
-  autoApproved?: boolean
 }
 
 export type Role = 'Admin' | 'Vendedor' | 'Cliente'

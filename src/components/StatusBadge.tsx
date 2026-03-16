@@ -6,7 +6,7 @@ export function StatusBadge({ status, className }: { status: ProcessStatus; clas
   let colorClass = 'bg-slate-100 text-slate-700 hover:bg-slate-200'
 
   switch (status) {
-    case 'Aguardando Autorização':
+    case 'Pendente de Análise':
       colorClass = 'bg-blue-100 text-blue-700 hover:bg-blue-200'
       break
     case 'NF Recusada':

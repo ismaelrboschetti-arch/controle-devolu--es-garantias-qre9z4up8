@@ -11,7 +11,7 @@ export const mockProcesses: Process[] = [
     seller: 'João Pedro',
     requestDate: '2023-10-01',
     value: 150.0,
-    status: 'Aguardando Autorização',
+    status: 'Pendente de Análise',
     slaDays: 2,
     category: 'Outros',
     purchaseDate: '2023-09-25',

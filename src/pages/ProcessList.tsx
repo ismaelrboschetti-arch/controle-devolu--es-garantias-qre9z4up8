@@ -72,7 +72,7 @@ export default function ProcessList() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="todos">Todos os Status</SelectItem>
-              <SelectItem value="Aguardando Autorização">Aguardando Autorização</SelectItem>
+              <SelectItem value="Pendente de Análise">Pendente de Análise</SelectItem>
               <SelectItem value="Produto Recebido">Produto Recebido</SelectItem>
               <SelectItem value="Enviado ao Fornecedor">Enviado ao Fornecedor</SelectItem>
               <SelectItem value="Crédito Liberado">Crédito Liberado</SelectItem>
@@ -91,14 +91,7 @@ export default function ProcessList() {
                 onClick={() => navigate(`/processos/${p.id}`)}
               >
                 <div className="flex justify-between items-start mb-2">
-                  <span className="font-bold text-brand-blue flex items-center gap-2">
-                    {p.id}
-                    {p.autoApproved && (
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-100 text-purple-800">
-                        Auto
-                      </span>
-                    )}
-                  </span>
+                  <span className="font-bold text-brand-blue flex items-center gap-2">{p.id}</span>
                   <StatusBadge status={p.status} />
                 </div>
                 <div className="text-sm font-medium text-slate-800">{p.customer}</div>
@@ -144,14 +137,7 @@ export default function ProcessList() {
                     onClick={() => navigate(`/processos/${p.id}`)}
                   >
                     <TableCell className="font-semibold text-brand-blue">
-                      <div className="flex items-center gap-2">
-                        {p.id}
-                        {p.autoApproved && (
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-100 text-purple-800 uppercase tracking-wider">
-                            Auto
-                          </span>
-                        )}
-                      </div>
+                      <div className="flex items-center gap-2">{p.id}</div>
                     </TableCell>
                     <TableCell>{p.requestDate}</TableCell>
                     <TableCell>

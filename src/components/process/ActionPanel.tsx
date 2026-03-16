@@ -29,18 +29,18 @@ export function ActionPanel({ process }: { process: Process }) {
 
   return (
     <div className="space-y-3">
-      {process.status === 'Aguardando Autorização' && (
+      {process.status === 'Pendente de Análise' && (
         <div className="flex gap-2">
           <Button
             onClick={() =>
-              handleAction('Produto Recebido', 'NF Autorizada. Aguardando envio físico.')
+              handleAction('Produto Recebido', 'Inspeção aprovada. Produto recebido fisicamente.')
             }
             className="bg-emerald-600 hover:bg-emerald-700 flex-1"
           >
-            <Check className="w-4 h-4 mr-2" /> Autorizar NF
+            <Check className="w-4 h-4 mr-2" /> Aprovar
           </Button>
           <Button
-            onClick={() => handleAction('NF Recusada', 'NF Recusada.')}
+            onClick={() => handleAction('NF Recusada', 'Inspeção Recusada.')}
             variant="destructive"
             className="flex-1"
           >

@@ -183,18 +183,7 @@ export default function NewRequest() {
       .padStart(4, '0')
     const id = type === 'Garantia' ? `GRT-${num}` : `DEV-${num}`
 
-    let finalStatus: ProcessStatus = 'Aguardando Autorização'
-    let autoApproved = false
-
-    if (type === 'Devolução Comum' && formData.returnReason === '1 - Comprei errado') {
-      const pDate = new Date(formData.purchaseDate)
-      const today = new Date()
-      const diffDays = Math.floor((today.getTime() - pDate.getTime()) / (1000 * 60 * 60 * 24))
-      if (diffDays >= 0 && diffDays <= 7) {
-        finalStatus = 'Produto Recebido'
-        autoApproved = true
-      }
-    }
+    const finalStatus: ProcessStatus = 'Pendente de Análise'
 
     addProcess({
       id,
@@ -214,7 +203,6 @@ export default function NewRequest() {
       purchaseDate: formData.purchaseDate,
       invoiceNumber: formData.invoiceNumber,
       evidenceUrls: files.map((f) => f.url),
-      autoApproved,
       ...(type === 'Garantia'
         ? {
             applicationDate: formData.applicationDate,
@@ -230,17 +218,10 @@ export default function NewRequest() {
           }),
     })
 
-    if (autoApproved) {
-      toast.success('Solicitação aprovada automaticamente!', {
-        description: `Notificação enviada para ${formData.customerEmail} e WhatsApp ${formData.customerPhone}.`,
-        icon: '✅',
-      })
-    } else {
-      toast.success('Solicitação criada com sucesso!', {
-        description: `Notificações de acompanhamento enviadas para ${formData.customerEmail} e WhatsApp.`,
-        icon: '📧',
-      })
-    }
+    toast.success('Solicitação criada com sucesso!', {
+      description: `Notificações de acompanhamento enviadas para ${formData.customerEmail} e WhatsApp informando que o produto deve ser enviado para inspeção física.`,
+      icon: '📧',
+    })
     navigate(`/processos/${id}`)
   }
 

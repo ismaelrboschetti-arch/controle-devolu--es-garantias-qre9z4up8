@@ -14,7 +14,7 @@ export function StatCards() {
   ).length
 
   const aguardandoAcao = processes.filter(
-    (p) => p.status === 'Aguardando Autorização' || p.status === 'Produto Recebido',
+    (p) => p.status === 'Pendente de Análise' || p.status === 'Produto Recebido',
   ).length
 
   const creditosLiberados = processes

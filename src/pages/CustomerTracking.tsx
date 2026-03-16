@@ -75,11 +75,6 @@ export default function CustomerTracking() {
                     <div>
                       <CardTitle className="text-2xl flex items-center gap-3 text-slate-900">
                         {process.id}
-                        {process.autoApproved && (
-                          <span className="text-xs bg-purple-100 text-purple-700 px-2.5 py-1 rounded-md font-bold tracking-wide uppercase">
-                            Auto-Aprovado
-                          </span>
-                        )}
                       </CardTitle>
                       <p className="text-sm font-medium text-slate-500 mt-1.5">
                         Criado em {process.requestDate} • {process.type}

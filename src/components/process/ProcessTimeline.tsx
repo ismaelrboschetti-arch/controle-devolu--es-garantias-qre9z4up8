@@ -2,7 +2,7 @@ import { CheckCircle2, Circle } from 'lucide-react'
 import { ProcessStatus } from '@/lib/types'
 
 const steps = [
-  'Aguardando Autorização',
+  'Pendente de Análise',
   'Produto Recebido',
   'Enviado ao Fornecedor',
   'Análise Crédito',
@@ -11,7 +11,7 @@ const steps = [
 
 export function ProcessTimeline({ currentStatus }: { currentStatus: ProcessStatus }) {
   // Map complex statuses to timeline stages
-  let activeIndex = steps.indexOf(currentStatus)
+  let activeIndex = steps.indexOf(currentStatus as string)
   if (currentStatus === 'NF Recusada') activeIndex = 0
   if (currentStatus === 'Crédito Antecipado') activeIndex = 3
   if (currentStatus === 'Finalizado') activeIndex = 4
@@ -60,8 +60,8 @@ export function ProcessTimeline({ currentStatus }: { currentStatus: ProcessStatu
                 <h4
                   className={`font-semibold text-sm ${isCurrent || isCompleted ? 'text-slate-900' : 'text-slate-500'}`}
                 >
-                  {step === 'Aguardando Autorização' && currentStatus === 'NF Recusada'
-                    ? 'Autorização Recusada'
+                  {step === 'Pendente de Análise' && currentStatus === 'NF Recusada'
+                    ? 'Análise Recusada'
                     : step}
                 </h4>
                 {isCurrent && (
