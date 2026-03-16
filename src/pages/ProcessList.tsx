@@ -22,6 +22,7 @@ import { Search, Plus, Filter } from 'lucide-react'
 import { useProcessStore } from '@/contexts/ProcessContext'
 import { StatusBadge } from '@/components/StatusBadge'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { cn } from '@/lib/utils'
 
 export default function ProcessList() {
   const { processes } = useProcessStore()
