@@ -91,7 +91,14 @@ export default function ProcessList() {
                 onClick={() => navigate(`/processos/${p.id}`)}
               >
                 <div className="flex justify-between items-start mb-2">
-                  <span className="font-bold text-brand-blue">{p.id}</span>
+                  <span className="font-bold text-brand-blue flex items-center gap-2">
+                    {p.id}
+                    {p.autoApproved && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-100 text-purple-800">
+                        Auto
+                      </span>
+                    )}
+                  </span>
                   <StatusBadge status={p.status} />
                 </div>
                 <div className="text-sm font-medium text-slate-800">{p.customer}</div>
@@ -136,7 +143,16 @@ export default function ProcessList() {
                     className="cursor-pointer hover:bg-slate-50 transition-colors"
                     onClick={() => navigate(`/processos/${p.id}`)}
                   >
-                    <TableCell className="font-semibold text-brand-blue">{p.id}</TableCell>
+                    <TableCell className="font-semibold text-brand-blue">
+                      <div className="flex items-center gap-2">
+                        {p.id}
+                        {p.autoApproved && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-100 text-purple-800 uppercase tracking-wider">
+                            Auto
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell>{p.requestDate}</TableCell>
                     <TableCell>
                       <div className="font-medium text-slate-800">{p.customer}</div>

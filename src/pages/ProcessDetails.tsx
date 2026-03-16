@@ -1,5 +1,13 @@
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, AlertTriangle, CalendarDays, User, Package, Receipt } from 'lucide-react'
+import {
+  ArrowLeft,
+  AlertTriangle,
+  CalendarDays,
+  User,
+  Package,
+  Receipt,
+  FileImage,
+} from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useProcessStore } from '@/contexts/ProcessContext'
@@ -15,7 +23,7 @@ export default function ProcessDetails() {
 
   if (!process) {
     return (
-      <div className="text-center py-20">
+      <div className="text-center py-20 animate-fade-in">
         Processo não encontrado.{' '}
         <Button variant="link" onClick={() => navigate('/processos')}>
           Voltar
@@ -31,22 +39,30 @@ export default function ProcessDetails() {
 
   return (
     <div className="flex flex-col gap-6 animate-slide-up pb-10">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate('/processos')}
-          className="shrink-0"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-3">
-            {process.id} <StatusBadge status={process.status} className="text-sm" />
-          </h1>
-          <p className="text-slate-500 text-sm mt-1">
-            {process.type} • Iniciado em {process.requestDate}
-          </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/processos')}
+            className="shrink-0"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex flex-wrap items-center gap-3">
+              {process.id}
+              <StatusBadge status={process.status} className="text-sm" />
+              {process.autoApproved && (
+                <span className="text-xs bg-purple-100 text-purple-700 px-2.5 py-1 rounded-md font-bold tracking-wide uppercase">
+                  Auto-Aprovado
+                </span>
+              )}
+            </h1>
+            <p className="text-slate-500 text-sm mt-1">
+              {process.type} • Iniciado em {process.requestDate}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -112,7 +128,7 @@ export default function ProcessDetails() {
                 )}
 
                 {process.type === 'Garantia' && process.defectDescription && (
-                  <div className="space-y-2 col-span-2 mt-2 p-4 bg-slate-50 rounded-lg border">
+                  <div className="space-y-2 col-span-2 mt-2 p-4 bg-slate-50 rounded-lg border border-slate-100">
                     <div className="grid grid-cols-2 gap-4 mb-3">
                       <div>
                         <p className="text-xs font-medium text-slate-500">Aplicação</p>
@@ -133,7 +149,7 @@ export default function ProcessDetails() {
                 )}
 
                 {process.type === 'Devolução Comum' && process.returnReason && (
-                  <div className="space-y-1 col-span-2 mt-2 p-4 bg-slate-50 rounded-lg border">
+                  <div className="space-y-1 col-span-2 mt-2 p-4 bg-slate-50 rounded-lg border border-slate-100">
                     <p className="text-xs font-medium text-slate-500 mb-1">Motivo da Devolução</p>
                     <p className="text-sm font-semibold text-slate-800">
                       {process.returnReason}
@@ -141,6 +157,36 @@ export default function ProcessDetails() {
                     </p>
                     <p className="text-xs font-medium text-slate-500 mt-3 mb-1">Descrição</p>
                     <p className="text-sm text-slate-700">{process.returnDescription}</p>
+                  </div>
+                )}
+
+                {process.evidenceUrls && process.evidenceUrls.length > 0 && (
+                  <div className="col-span-2 pt-4 border-t">
+                    <p className="text-xs font-medium text-slate-500 flex items-center gap-1.5 mb-3">
+                      <FileImage className="w-3.5 h-3.5" /> Evidências Anexadas
+                    </p>
+                    <div className="flex gap-3 flex-wrap">
+                      {process.evidenceUrls.map((url, i) => (
+                        <a
+                          key={i}
+                          href={url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="block relative w-20 h-20 sm:w-24 sm:h-24 border rounded-md overflow-hidden bg-slate-100 group shadow-sm hover:ring-2 ring-brand-blue ring-offset-2 transition-all"
+                        >
+                          <img
+                            src={url}
+                            className="w-full h-full object-cover"
+                            alt={`Evidência ${i + 1}`}
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <span className="text-white text-xs font-medium bg-black/50 px-2 py-1 rounded">
+                              Ver
+                            </span>
+                          </div>
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -171,7 +217,7 @@ export default function ProcessDetails() {
               </div>
               <div className="w-full bg-slate-800 rounded-full h-2 mb-2">
                 <div
-                  className={`h-2 rounded-full ${isOverdue ? 'bg-amber-500' : 'bg-blue-500'}`}
+                  className={`h-2 rounded-full transition-all duration-1000 ${isOverdue ? 'bg-amber-500' : 'bg-blue-500'}`}
                   style={{ width: `${Math.min((process.slaDays / 60) * 100, 100)}%` }}
                 ></div>
               </div>

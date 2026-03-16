@@ -36,6 +36,10 @@ export interface Process {
   returnReason?: string
   returnDescription?: string
   otherReason?: string
+
+  // Media & Tracking
+  evidenceUrls?: string[]
+  autoApproved?: boolean
 }
 
 export type Role = 'Admin' | 'Vendedor' | 'Cliente'

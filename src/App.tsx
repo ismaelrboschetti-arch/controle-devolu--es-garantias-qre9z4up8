@@ -7,6 +7,7 @@ import Index from './pages/Index'
 import ProcessList from './pages/ProcessList'
 import ProcessDetails from './pages/ProcessDetails'
 import NewRequest from './pages/NewRequest'
+import CustomerTracking from './pages/CustomerTracking'
 import NotFound from './pages/NotFound'
 import { ProcessProvider } from './contexts/ProcessContext'
 
@@ -17,6 +18,7 @@ const App = () => (
         <Toaster />
         <Sonner position="top-right" richColors />
         <Routes>
+          <Route path="/consultar-ticket" element={<CustomerTracking />} />
           <Route element={<Layout />}>
             <Route path="/" element={<Index />} />
             <Route path="/processos" element={<ProcessList />} />
