@@ -1,17 +1,21 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useProcessStore } from '@/contexts/ProcessContext'
 import { StatusBadge } from '@/components/StatusBadge'
 import { ProcessTimeline } from '@/components/process/ProcessTimeline'
-import { Search, Package, ArrowLeft } from 'lucide-react'
+import { Search, Package, ArrowLeft, FileText, Upload, Info } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { toast } from 'sonner'
 
 export default function CustomerTracking() {
   const [ticketId, setTicketId] = useState('')
   const [searched, setSearched] = useState(false)
-  const { processes } = useProcessStore()
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const { processes, updateProcess } = useProcessStore()
 
   const process = processes.find((p) => p.id.toUpperCase() === ticketId.trim().toUpperCase())
 
@@ -19,6 +23,22 @@ export default function CustomerTracking() {
     e.preventDefault()
     if (ticketId.trim()) {
       setSearched(true)
+    }
+  }
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file && process) {
+      setUploading(true)
+      // Simulate upload delay
+      setTimeout(() => {
+        updateProcess(process.id, {
+          status: 'Nota Fiscal em Análise',
+          returnInvoiceUrl: URL.createObjectURL(file),
+        })
+        setUploading(false)
+        toast.success('Nota Fiscal enviada com sucesso! Em análise.')
+      }, 1500)
     }
   }
 
@@ -83,8 +103,82 @@ export default function CustomerTracking() {
                     <StatusBadge status={process.status} className="text-sm px-3 py-1.5" />
                   </div>
                 </CardHeader>
-                <CardContent className="pt-8 bg-slate-50/30">
+                <CardContent className="pt-8 bg-slate-50/30 pb-8">
                   <ProcessTimeline currentStatus={process.status} />
+
+                  {process.status === 'Autorizado emissão da nota fiscal' && (
+                    <Card className="mt-8 border-brand-blue/30 bg-blue-50/50 shadow-sm animate-fade-in-up">
+                      <CardContent className="pt-6">
+                        <div className="flex flex-col items-center text-center space-y-4">
+                          <div className="p-3 bg-brand-blue/10 rounded-full">
+                            <FileText className="w-8 h-8 text-brand-blue" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold text-slate-900">
+                              Ação Necessária: Enviar Nota Fiscal
+                            </h3>
+                            <p className="text-sm text-slate-600 mt-1 max-w-md mx-auto leading-relaxed">
+                              Sua solicitação foi aprovada. Para prosseguirmos, por favor emita a{' '}
+                              <strong>Nota Fiscal de Devolução</strong> e anexe-a abaixo (Formatos
+                              aceitos: PDF, JPG, PNG).
+                            </p>
+                          </div>
+                          <input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            onChange={handleFileUpload}
+                          />
+                          <Button
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={uploading}
+                            size="lg"
+                            className="bg-brand-blue hover:bg-blue-600 w-full sm:w-auto mt-2"
+                          >
+                            {uploading ? (
+                              'Enviando arquivo...'
+                            ) : (
+                              <>
+                                <Upload className="w-4 h-4 mr-2" /> Anexar Nota Fiscal de Devolução
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {process.status === 'Envio da Mercadoria Autorizado' && (
+                    <Card className="mt-8 border-teal-200 bg-teal-50 shadow-sm animate-fade-in-up">
+                      <CardContent className="pt-6 pb-6">
+                        <div className="flex gap-4 items-start">
+                          <Info className="w-6 h-6 text-teal-600 shrink-0 mt-0.5" />
+                          <div>
+                            <h3 className="text-lg font-semibold text-teal-900">
+                              Instruções de Envio da Mercadoria
+                            </h3>
+                            <p className="text-sm text-teal-800 mt-2 leading-relaxed">
+                              Sua Nota Fiscal de Devolução foi validada com sucesso!
+                              <br />
+                              <br />
+                              Por favor, embale o produto adequadamente e envie para o seguinte
+                              endereço:
+                              <br />
+                              <strong className="block mt-1 text-teal-900 bg-teal-100/50 p-2 rounded border border-teal-200">
+                                Rua das Peças, 123 - Centro Logístico
+                                <br />
+                                São Paulo/SP - CEP 01000-000
+                              </strong>
+                              <br />
+                              Lembre-se de incluir uma cópia impressa da Nota Fiscal junto à
+                              mercadoria.
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
                 </CardContent>
               </Card>
             ) : (

@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button'
 import { Process } from '@/lib/types'
 import { useProcessStore } from '@/contexts/ProcessContext'
 import { toast } from 'sonner'
-import { Check, X, Truck, Wallet } from 'lucide-react'
+import { Check, X, Truck, Wallet, Package } from 'lucide-react'
 
 export function ActionPanel({ process }: { process: Process }) {
   const { role, updateStatus } = useProcessStore()
@@ -33,20 +33,46 @@ export function ActionPanel({ process }: { process: Process }) {
         <div className="flex gap-2">
           <Button
             onClick={() =>
-              handleAction('Produto Recebido', 'Inspeção aprovada. Produto recebido fisicamente.')
+              handleAction(
+                'Autorizado emissão da nota fiscal',
+                'Emissão da Nota Fiscal de Devolução autorizada.',
+              )
             }
-            className="bg-emerald-600 hover:bg-emerald-700 flex-1"
+            className="bg-brand-blue hover:bg-blue-600 flex-1"
           >
-            <Check className="w-4 h-4 mr-2" /> Aprovar
+            <Check className="w-4 h-4 mr-2" /> Autorizar NF
           </Button>
           <Button
-            onClick={() => handleAction('NF Recusada', 'Inspeção Recusada.')}
+            onClick={() => handleAction('NF Recusada', 'Solicitação Recusada.')}
             variant="destructive"
             className="flex-1"
           >
             <X className="w-4 h-4 mr-2" /> Recusar
           </Button>
         </div>
+      )}
+
+      {process.status === 'Nota Fiscal em Análise' && (
+        <Button
+          onClick={() =>
+            handleAction(
+              'Envio da Mercadoria Autorizado',
+              'Nota Fiscal aprovada. Envio autorizado.',
+            )
+          }
+          className="w-full bg-emerald-600 hover:bg-emerald-700"
+        >
+          <Check className="w-4 h-4 mr-2" /> Aprovar Nota Fiscal e Autorizar Envio
+        </Button>
+      )}
+
+      {process.status === 'Envio da Mercadoria Autorizado' && (
+        <Button
+          onClick={() => handleAction('Produto Recebido', 'Produto recebido fisicamente.')}
+          className="w-full bg-indigo-600 hover:bg-indigo-700"
+        >
+          <Package className="w-4 h-4 mr-2" /> Confirmar Recebimento do Produto
+        </Button>
       )}
 
       {process.status === 'Produto Recebido' && process.type === 'Devolução Comum' && (
@@ -69,9 +95,7 @@ export function ActionPanel({ process }: { process: Process }) {
         </Button>
       )}
 
-      {(process.status === 'Enviado ao Fornecedor' ||
-        process.status === 'Análise Crédito' ||
-        process.status === 'Crédito Antecipado') && (
+      {(process.status === 'Enviado ao Fornecedor' || process.status === 'Crédito Antecipado') && (
         <Button
           onClick={() =>
             handleAction('Crédito Liberado', 'Crédito Liberado após retorno do fornecedor!')

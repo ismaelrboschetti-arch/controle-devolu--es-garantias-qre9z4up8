@@ -7,6 +7,7 @@ import {
   Package,
   Receipt,
   FileImage,
+  FileText,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -158,6 +159,29 @@ export default function ProcessDetails() {
                     </p>
                     <p className="text-xs font-medium text-slate-500 mt-3 mb-1">Descrição</p>
                     <p className="text-sm text-slate-700">{process.returnDescription}</p>
+                  </div>
+                )}
+
+                {process.returnInvoiceUrl && (
+                  <div className="col-span-2 mt-2 p-4 bg-purple-50 rounded-lg border border-purple-100 flex items-center justify-between shadow-sm">
+                    <div>
+                      <p className="text-xs font-medium text-purple-600 mb-1 flex items-center gap-1.5">
+                        <FileText className="w-3.5 h-3.5" /> Nota Fiscal de Devolução Anexada
+                      </p>
+                      <p className="text-sm text-purple-900 font-medium">
+                        Documento disponível para validação da equipe
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="bg-white border-purple-200 text-purple-700 hover:bg-purple-100"
+                      asChild
+                    >
+                      <a href={process.returnInvoiceUrl} target="_blank" rel="noreferrer">
+                        Visualizar NF
+                      </a>
+                    </Button>
                   </div>
                 )}
 

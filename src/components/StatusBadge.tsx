@@ -12,12 +12,18 @@ export function StatusBadge({ status, className }: { status: ProcessStatus; clas
     case 'NF Recusada':
       colorClass = 'bg-rose-100 text-rose-700 hover:bg-rose-200'
       break
+    case 'Autorizado emissão da nota fiscal':
+      colorClass = 'bg-cyan-100 text-cyan-700 hover:bg-cyan-200 border border-cyan-200'
+      break
+    case 'Nota Fiscal em Análise':
+      colorClass = 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+      break
+    case 'Envio da Mercadoria Autorizado':
+      colorClass = 'bg-teal-100 text-teal-700 hover:bg-teal-200'
+      break
     case 'Produto Recebido':
     case 'Enviado ao Fornecedor':
       colorClass = 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
-      break
-    case 'Análise Crédito':
-      colorClass = 'bg-amber-100 text-amber-700 hover:bg-amber-200'
       break
     case 'Crédito Antecipado':
       colorClass = 'bg-orange-100 text-orange-700 hover:bg-orange-200 border border-orange-300'

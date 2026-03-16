@@ -1,9 +1,11 @@
 export type ProcessStatus =
   | 'Pendente de Análise'
   | 'NF Recusada'
+  | 'Autorizado emissão da nota fiscal'
+  | 'Nota Fiscal em Análise'
+  | 'Envio da Mercadoria Autorizado'
   | 'Produto Recebido'
   | 'Enviado ao Fornecedor'
-  | 'Análise Crédito'
   | 'Crédito Antecipado'
   | 'Crédito Liberado'
   | 'Finalizado'
@@ -43,6 +45,7 @@ export interface Process {
 
   // Media & Tracking
   evidenceUrls?: string[]
+  returnInvoiceUrl?: string
 }
 
 export type Role = 'Admin' | 'Vendedor' | 'Cliente'

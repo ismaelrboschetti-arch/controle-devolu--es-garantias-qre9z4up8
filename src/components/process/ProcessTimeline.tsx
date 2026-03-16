@@ -3,9 +3,10 @@ import { ProcessStatus } from '@/lib/types'
 
 const steps = [
   'Pendente de Análise',
+  'Autorizado emissão da nota fiscal',
+  'Envio da Mercadoria Autorizado',
   'Produto Recebido',
   'Enviado ao Fornecedor',
-  'Análise Crédito',
   'Crédito Liberado',
 ]
 
@@ -13,8 +14,9 @@ export function ProcessTimeline({ currentStatus }: { currentStatus: ProcessStatu
   // Map complex statuses to timeline stages
   let activeIndex = steps.indexOf(currentStatus as string)
   if (currentStatus === 'NF Recusada') activeIndex = 0
-  if (currentStatus === 'Crédito Antecipado') activeIndex = 3
-  if (currentStatus === 'Finalizado') activeIndex = 4
+  if (currentStatus === 'Nota Fiscal em Análise') activeIndex = 1
+  if (currentStatus === 'Crédito Antecipado') activeIndex = 4
+  if (currentStatus === 'Finalizado') activeIndex = 5
   if (activeIndex === -1) activeIndex = 0
 
   return (
@@ -26,7 +28,7 @@ export function ProcessTimeline({ currentStatus }: { currentStatus: ProcessStatu
           const isCompleted =
             index < activeIndex ||
             currentStatus === 'Finalizado' ||
-            (index === 4 && currentStatus === 'Crédito Liberado')
+            (index === 5 && currentStatus === 'Crédito Liberado')
           const isCurrent =
             index === activeIndex &&
             currentStatus !== 'Finalizado' &&
@@ -62,10 +64,17 @@ export function ProcessTimeline({ currentStatus }: { currentStatus: ProcessStatu
                 >
                   {step === 'Pendente de Análise' && currentStatus === 'NF Recusada'
                     ? 'Análise Recusada'
-                    : step}
+                    : step === 'Autorizado emissão da nota fiscal' &&
+                        currentStatus === 'Nota Fiscal em Análise'
+                      ? 'Nota Fiscal em Análise'
+                      : step}
                 </h4>
                 {isCurrent && (
-                  <p className="text-xs text-slate-500 mt-1">Aguardando ação da equipe</p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {currentStatus === 'Autorizado emissão da nota fiscal'
+                      ? 'Aguardando cliente anexar NF'
+                      : 'Aguardando ação da equipe'}
+                  </p>
                 )}
               </div>
             </div>

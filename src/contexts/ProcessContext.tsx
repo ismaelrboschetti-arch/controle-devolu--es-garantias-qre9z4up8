@@ -8,6 +8,7 @@ interface ProcessContextType {
   setRole: (role: Role) => void
   addProcess: (p: Process) => void
   updateStatus: (id: string, status: ProcessStatus) => void
+  updateProcess: (id: string, updates: Partial<Process>) => void
 }
 
 const ProcessContext = createContext<ProcessContextType | undefined>(undefined)
@@ -24,9 +25,13 @@ export function ProcessProvider({ children }: { children: React.ReactNode }) {
     setProcesses((prev) => prev.map((p) => (p.id === id ? { ...p, status } : p)))
   }
 
+  const updateProcess = (id: string, updates: Partial<Process>) => {
+    setProcesses((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)))
+  }
+
   return React.createElement(
     ProcessContext.Provider,
-    { value: { processes, role, setRole, addProcess, updateStatus } },
+    { value: { processes, role, setRole, addProcess, updateStatus, updateProcess } },
     children,
   )
 }
