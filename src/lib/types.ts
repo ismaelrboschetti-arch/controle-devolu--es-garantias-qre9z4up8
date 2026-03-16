@@ -24,6 +24,18 @@ export interface Process {
   status: ProcessStatus
   slaDays: number
   category: ProductCategory
+
+  // New fields for Warranty & Return
+  purchaseDate?: string
+  invoiceNumber?: string
+  applicationDate?: string
+  applicationKm?: number
+  defectDate?: string
+  defectKm?: number
+  defectDescription?: string
+  returnReason?: string
+  returnDescription?: string
+  otherReason?: string
 }
 
 export type Role = 'Admin' | 'Vendedor' | 'Cliente'

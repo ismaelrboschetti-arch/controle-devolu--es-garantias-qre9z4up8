@@ -98,6 +98,51 @@ export default function ProcessDetails() {
                     {formatCurrency(process.value)}
                   </p>
                 </div>
+
+                {process.purchaseDate && (
+                  <div className="space-y-1 col-span-2 pt-4 border-t">
+                    <p className="text-xs font-medium text-slate-500">
+                      Data da Compra / NF / Vendedor
+                    </p>
+                    <p className="font-semibold text-slate-800">
+                      {process.purchaseDate} — NF: {process.invoiceNumber} — Vendedor:{' '}
+                      {process.seller}
+                    </p>
+                  </div>
+                )}
+
+                {process.type === 'Garantia' && process.defectDescription && (
+                  <div className="space-y-2 col-span-2 mt-2 p-4 bg-slate-50 rounded-lg border">
+                    <div className="grid grid-cols-2 gap-4 mb-3">
+                      <div>
+                        <p className="text-xs font-medium text-slate-500">Aplicação</p>
+                        <p className="text-sm font-semibold">
+                          {process.applicationDate} ({process.applicationKm} km)
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-slate-500">Defeito</p>
+                        <p className="text-sm font-semibold">
+                          {process.defectDate} ({process.defectKm} km)
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-xs font-medium text-slate-500 mb-1">Defeito Apresentado</p>
+                    <p className="text-sm text-slate-700">{process.defectDescription}</p>
+                  </div>
+                )}
+
+                {process.type === 'Devolução Comum' && process.returnReason && (
+                  <div className="space-y-1 col-span-2 mt-2 p-4 bg-slate-50 rounded-lg border">
+                    <p className="text-xs font-medium text-slate-500 mb-1">Motivo da Devolução</p>
+                    <p className="text-sm font-semibold text-slate-800">
+                      {process.returnReason}
+                      {process.otherReason ? ` - ${process.otherReason}` : ''}
+                    </p>
+                    <p className="text-xs font-medium text-slate-500 mt-3 mb-1">Descrição</p>
+                    <p className="text-sm text-slate-700">{process.returnDescription}</p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

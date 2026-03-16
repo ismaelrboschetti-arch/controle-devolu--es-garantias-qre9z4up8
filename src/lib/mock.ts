@@ -2,7 +2,7 @@ import { Process } from './types'
 
 export const mockProcesses: Process[] = [
   {
-    id: 'PRC-1001',
+    id: 'DEV-1001',
     type: 'Devolução Comum',
     customer: 'Auto Peças Silva',
     product: 'Filtro de Ar',
@@ -14,9 +14,13 @@ export const mockProcesses: Process[] = [
     status: 'Aguardando Autorização',
     slaDays: 2,
     category: 'Outros',
+    purchaseDate: '2023-09-25',
+    invoiceNumber: 'NF-12345',
+    returnReason: '1 - Comprei errado',
+    returnDescription: 'Comprei o filtro para o modelo antigo do carro.',
   },
   {
-    id: 'PRC-1002',
+    id: 'GRT-1002',
     type: 'Garantia',
     customer: 'Oficina do Marcos',
     product: 'Amortecedor Dianteiro',
@@ -28,9 +32,16 @@ export const mockProcesses: Process[] = [
     status: 'Produto Recebido',
     slaDays: 18,
     category: 'Amortecedor',
+    purchaseDate: '2023-01-10',
+    invoiceNumber: 'NF-54321',
+    applicationDate: '2023-01-15',
+    applicationKm: 12000,
+    defectDate: '2023-09-10',
+    defectKm: 25000,
+    defectDescription: 'Vazamento de óleo prematuro na peça esquerda.',
   },
   {
-    id: 'PRC-1003',
+    id: 'GRT-1003',
     type: 'Garantia',
     customer: 'Centro Automotivo RJ',
     product: 'Pastilha de Freio',
@@ -44,7 +55,7 @@ export const mockProcesses: Process[] = [
     category: 'Outros',
   },
   {
-    id: 'PRC-1004',
+    id: 'DEV-1004',
     type: 'Devolução Comum',
     customer: 'Mecânica Express',
     product: 'Correia Dentada',
@@ -58,7 +69,7 @@ export const mockProcesses: Process[] = [
     category: 'Outros',
   },
   {
-    id: 'PRC-1005',
+    id: 'GRT-1005',
     type: 'Garantia',
     customer: 'Auto Peças Silva',
     product: "Bomba d'água",
@@ -72,7 +83,7 @@ export const mockProcesses: Process[] = [
     category: 'Outros',
   },
   {
-    id: 'PRC-1006',
+    id: 'DEV-1006',
     type: 'Devolução Comum',
     customer: 'Oficina do Marcos',
     product: 'Vela de Ignição',
@@ -86,7 +97,7 @@ export const mockProcesses: Process[] = [
     category: 'Outros',
   },
   {
-    id: 'PRC-1007',
+    id: 'GRT-1007',
     type: 'Garantia',
     customer: 'Centro Automotivo RJ',
     product: 'Amortecedor Traseiro',
