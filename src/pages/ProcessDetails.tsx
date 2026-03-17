@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
   AlertTriangle,
@@ -16,6 +16,7 @@ import { StatusBadge } from '@/components/StatusBadge'
 import { ProcessTimeline } from '@/components/process/ProcessTimeline'
 import { ActionPanel } from '@/components/process/ActionPanel'
 import { InvoiceUploadPanel } from '@/components/process/InvoiceUploadPanel'
+import { WarrantyCreditPanel } from '@/components/process/WarrantyCreditPanel'
 
 export default function ProcessDetails() {
   const { id } = useParams()
@@ -36,8 +37,12 @@ export default function ProcessDetails() {
 
   const formatCurrency = (val: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val)
+
   const isOverdue =
-    process.slaDays > 60 && process.status !== 'Crédito Liberado' && process.status !== 'Finalizado'
+    process.slaDays > 60 &&
+    process.status !== 'Crédito Liberado' &&
+    process.status !== 'Finalizado' &&
+    !process.customerCreditReleased
 
   return (
     <div className="flex flex-col gap-6 animate-slide-up pb-10">
@@ -69,7 +74,7 @@ export default function ProcessDetails() {
           <div>
             <h4 className="font-semibold text-amber-900">Prazo Legal Excedido (60 dias)</h4>
             <p className="text-sm text-amber-700 mt-1">
-              Este processo de garantia excedeu o limite do CDC. O crédito antecipado ao cliente é
+              Este processo de garantia excedeu o limite do CDC. O crédito independente ao cliente é
               recomendado.
             </p>
           </div>
@@ -227,7 +232,7 @@ export default function ProcessDetails() {
               <CardTitle className="text-lg">Linha do Tempo</CardTitle>
             </CardHeader>
             <CardContent className="pt-8 pl-4">
-              <ProcessTimeline currentStatus={process.status} />
+              <ProcessTimeline process={process} />
             </CardContent>
           </Card>
         </div>
@@ -253,6 +258,8 @@ export default function ProcessDetails() {
               <p className="text-xs text-slate-400 text-right">Limite Legal: 60 dias</p>
             </CardContent>
           </Card>
+
+          <WarrantyCreditPanel process={process} />
 
           <Card className="border-none shadow-sm">
             <CardHeader className="pb-3 border-b">

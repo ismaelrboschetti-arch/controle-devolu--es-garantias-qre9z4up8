@@ -5,7 +5,10 @@ export type ProcessStatus =
   | 'Nota Fiscal em Análise'
   | 'Envio da Mercadoria Autorizado'
   | 'Produto Recebido'
+  | 'Conferência de Estoque'
+  | 'Crédito Recusado'
   | 'Enviado ao Fornecedor'
+  | 'Aguardando Créditos'
   | 'Crédito Antecipado'
   | 'Crédito Liberado'
   | 'Finalizado'
@@ -47,6 +50,11 @@ export interface Process {
   evidenceUrls?: string[]
   returnInvoiceUrl?: string
   returnInvoiceName?: string
+
+  // Credit Management
+  creditDecisionReason?: string
+  supplierCreditReceived?: boolean
+  customerCreditReleased?: boolean
 }
 
 export type Role = 'Admin' | 'Vendedor' | 'Cliente'

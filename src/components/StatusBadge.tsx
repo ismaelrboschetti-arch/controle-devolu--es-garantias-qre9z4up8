@@ -10,7 +10,8 @@ export function StatusBadge({ status, className }: { status: ProcessStatus; clas
       colorClass = 'bg-blue-100 text-blue-700 hover:bg-blue-200'
       break
     case 'NF Recusada':
-      colorClass = 'bg-rose-100 text-rose-700 hover:bg-rose-200'
+    case 'Crédito Recusado':
+      colorClass = 'bg-rose-100 text-rose-700 hover:bg-rose-200 border border-rose-200'
       break
     case 'Autorizado emissão da nota fiscal':
       colorClass = 'bg-cyan-100 text-cyan-700 hover:bg-cyan-200 border border-cyan-200'
@@ -20,6 +21,12 @@ export function StatusBadge({ status, className }: { status: ProcessStatus; clas
       break
     case 'Envio da Mercadoria Autorizado':
       colorClass = 'bg-teal-100 text-teal-700 hover:bg-teal-200'
+      break
+    case 'Conferência de Estoque':
+      colorClass = 'bg-amber-100 text-amber-700 hover:bg-amber-200 border border-amber-200'
+      break
+    case 'Aguardando Créditos':
+      colorClass = 'bg-sky-100 text-sky-700 hover:bg-sky-200 border border-sky-200'
       break
     case 'Produto Recebido':
     case 'Enviado ao Fornecedor':
