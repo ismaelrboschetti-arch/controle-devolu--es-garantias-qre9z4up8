@@ -72,8 +72,8 @@ export function ActionPanel({
 
   const handleAuthorizeProcess = () => {
     let authorizerName = role
-    if (role === 'Gerente') authorizerName = 'Jonathan (Gerente)'
-    if (role === 'Diretor') authorizerName = 'Ismael (Diretor)'
+    if (role === 'Gerente') authorizerName = 'Jonathan'
+    if (role === 'Diretor') authorizerName = 'Ismael'
     if (role === 'Admin') authorizerName = 'Administrador'
 
     updateProcess(process.id, {
@@ -110,7 +110,7 @@ export function ActionPanel({
             onClick={handleAuthorizeProcess}
             className="w-full bg-rose-600 hover:bg-rose-700 text-white shadow-sm"
           >
-            <Check className="w-4 h-4 mr-2" /> Autorizar Processo
+            <Check className="w-4 h-4 mr-2" /> Autorizar Processo (Gerência/Direção)
           </Button>
         ) : (
           <div className="text-center text-xs text-slate-500 pt-2">

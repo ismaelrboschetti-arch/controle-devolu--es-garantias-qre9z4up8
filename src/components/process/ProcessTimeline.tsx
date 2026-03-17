@@ -49,9 +49,8 @@ export function ProcessTimeline({ process }: { process: Process }) {
             <div className="flex-1">
               <h4 className="font-semibold text-sm text-indigo-700">Exceção Autorizada</h4>
               <p className="text-xs text-slate-500 mt-1">
-                Processo autorizado por{' '}
-                <span className="font-semibold">{process.authorizedBy}</span> em{' '}
-                {new Date(process.authorizedAt!).toLocaleString('pt-BR')}.
+                Processo autorizado por {process.authorizedBy} em{' '}
+                {new Date(process.authorizedAt!).toLocaleString('pt-BR')}
               </p>
             </div>
           </div>

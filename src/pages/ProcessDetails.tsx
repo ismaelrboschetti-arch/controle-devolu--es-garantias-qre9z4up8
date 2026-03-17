@@ -35,8 +35,10 @@ export default function ProcessDetails() {
 
   const isExceeded = useMemo(() => {
     if (!process) return false
-    const requestDate = new Date(process.requestDate)
-    const diffTime = Math.abs(new Date().getTime() - requestDate.getTime())
+    const baseDate = process.purchaseDate
+      ? new Date(process.purchaseDate)
+      : new Date(process.requestDate)
+    const diffTime = Math.abs(new Date().getTime() - baseDate.getTime())
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
     if (process.type === 'Devolução Comum') return diffDays > 7
@@ -119,8 +121,8 @@ export default function ProcessDetails() {
           <div>
             <h4 className="font-semibold text-rose-900">Autorização Necessária</h4>
             <p className="text-sm text-rose-700 mt-1">
-              Atenção: Esta solicitação excede o prazo padrão e requer autorização da gerência para
-              prosseguir.
+              Atenção: Esta solicitação excede o prazo permitido e requer autorização da gerência
+              para prosseguir.
             </p>
           </div>
         </div>
