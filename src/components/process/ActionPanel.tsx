@@ -18,26 +18,36 @@ import { Label } from '@/components/ui/label'
 export function ActionPanel({ process }: { process: Process }) {
   const { role, updateStatus, updateProcess } = useProcessStore()
   const [isReasonOpen, setIsReasonOpen] = useState(false)
-  const [reasonType, setReasonType] = useState<'approve' | 'refuse'>('approve')
+  const [reasonType, setReasonType] = useState<'approve' | 'refuse' | 'anticipate'>('approve')
   const [reasonText, setReasonText] = useState('')
 
   const handleAction = (newStatus: ProcessStatus, message: string) => {
     updateStatus(process.id, newStatus)
     toast.success(message)
-
-    const contactInfo = [process.customerEmail, process.customerPhone].filter(Boolean).join(' e ')
-    const target = contactInfo ? `para ${contactInfo}` : 'ao cliente via Email/WhatsApp'
-
-    setTimeout(() => toast(`Notificação de atualização enviada ${target}`, { icon: '📱' }), 1500)
+    const target = process.customerEmail || process.customerPhone ? `para o cliente` : 'via Email'
+    setTimeout(() => toast(`Notificação enviada ${target}`, { icon: '📱' }), 1500)
   }
 
-  const openReasonDialog = (type: 'approve' | 'refuse') => {
+  const openReasonDialog = (type: 'approve' | 'refuse' | 'anticipate') => {
     setReasonType(type)
     setReasonText('')
     setIsReasonOpen(true)
   }
 
   const handleReasonSubmit = () => {
+    if (reasonType === 'anticipate') {
+      const isEarly = process.status !== 'Aguardando Créditos'
+      updateProcess(process.id, {
+        customerCreditReleased: true,
+        creditAnticipated: isEarly,
+        creditDecisionReason: reasonText,
+      })
+      setIsReasonOpen(false)
+      setReasonText('')
+      toast.success(isEarly ? 'Crédito antecipado com sucesso.' : 'Crédito liberado com sucesso.')
+      return
+    }
+
     const newStatus = reasonType === 'approve' ? 'Crédito Liberado' : 'Crédito Recusado'
     updateProcess(process.id, { status: newStatus, creditDecisionReason: reasonText })
     setIsReasonOpen(false)
@@ -58,15 +68,22 @@ export function ActionPanel({ process }: { process: Process }) {
       <Dialog open={isReasonOpen} onOpenChange={setIsReasonOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Motivo da Decisão</DialogTitle>
+            <DialogTitle>
+              {reasonType === 'anticipate' ? 'Liberação de Crédito' : 'Motivo da Decisão'}
+            </DialogTitle>
             <DialogDescription>
-              Forneça uma justificativa obrigatória para o histórico do processo.
+              Forneça uma justificativa para o histórico do processo.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>
-                Descreva o motivo da {reasonType === 'approve' ? 'aprovação' : 'recusa'}
+                Descreva o motivo da{' '}
+                {reasonType === 'approve'
+                  ? 'aprovação'
+                  : reasonType === 'refuse'
+                    ? 'recusa'
+                    : 'liberação'}
               </Label>
               <Textarea
                 value={reasonText}
@@ -84,26 +101,70 @@ export function ActionPanel({ process }: { process: Process }) {
               disabled={!reasonText.trim()}
               onClick={handleReasonSubmit}
               className={
-                reasonType === 'approve'
+                reasonType === 'approve' || reasonType === 'anticipate'
                   ? 'bg-emerald-600 hover:bg-emerald-700'
                   : 'bg-red-600 hover:bg-red-700'
               }
             >
-              Confirmar {reasonType === 'approve' ? 'Liberação' : 'Recusa'}
+              Confirmar{' '}
+              {reasonType === 'approve'
+                ? 'Liberação'
+                : reasonType === 'anticipate'
+                  ? 'Liberação'
+                  : 'Recusa'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       <div className="space-y-3">
+        {process.type === 'Garantia' &&
+          !process.customerCreditReleased &&
+          !['Finalizado', 'Crédito Recusado'].includes(process.status) && (
+            <div className="mb-4 p-4 bg-emerald-50/50 border border-emerald-100 rounded-lg">
+              <h4 className="font-semibold text-sm text-emerald-900 mb-1 flex items-center gap-2">
+                <Wallet className="w-4 h-4" />
+                {process.status !== 'Aguardando Créditos'
+                  ? 'Liberação Antecipada'
+                  : 'Liberar Crédito'}
+              </h4>
+              <p className="text-xs text-emerald-700 mb-3 leading-relaxed">
+                {process.status !== 'Aguardando Créditos'
+                  ? 'Permite liberar o crédito ao cliente imediatamente, independente das etapas logísticas do processo.'
+                  : 'O processo chegou na etapa final. Libere o crédito ao cliente para prosseguir com a finalização.'}
+              </p>
+              <Button
+                onClick={() => openReasonDialog('anticipate')}
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+              >
+                {process.status !== 'Aguardando Créditos'
+                  ? 'Antecipar Crédito ao Cliente'
+                  : 'Liberar Crédito ao Cliente'}
+              </Button>
+            </div>
+          )}
+
+        {process.type === 'Garantia' && process.customerCreditReleased && (
+          <div className="mb-4 p-4 bg-emerald-50 border border-emerald-100 rounded-lg flex gap-3 items-start">
+            <Check className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
+            <div>
+              <h4 className="font-semibold text-sm text-emerald-900">
+                {process.creditAnticipated
+                  ? 'Crédito Antecipado Liberado'
+                  : 'Crédito ao Cliente Liberado'}
+              </h4>
+              <p className="text-xs text-emerald-700 mt-1">
+                O crédito deste processo já foi disponibilizado ao cliente.
+              </p>
+            </div>
+          </div>
+        )}
+
         {process.status === 'Pendente de Análise' && (
           <div className="flex gap-2">
             <Button
               onClick={() =>
-                handleAction(
-                  'Autorizado emissão da nota fiscal',
-                  'Emissão da Nota Fiscal de Devolução autorizada.',
-                )
+                handleAction('Autorizado emissão da nota fiscal', 'Emissão autorizada.')
               }
               className="bg-brand-blue hover:bg-blue-600 flex-1"
             >
@@ -121,45 +182,33 @@ export function ActionPanel({ process }: { process: Process }) {
 
         {process.status === 'Nota Fiscal em Análise' && (
           <Button
-            onClick={() =>
-              handleAction(
-                'Envio da Mercadoria Autorizado',
-                'Nota Fiscal aprovada. Envio autorizado.',
-              )
-            }
+            onClick={() => handleAction('Envio da Mercadoria Autorizado', 'Nota aprovada.')}
             className="w-full bg-emerald-600 hover:bg-emerald-700"
           >
-            <Check className="w-4 h-4 mr-2" /> Aprovar Nota Fiscal e Autorizar Envio
+            <Check className="w-4 h-4 mr-2" /> Aprovar e Autorizar Envio
           </Button>
         )}
 
         {process.status === 'Envio da Mercadoria Autorizado' && (
           <Button
-            onClick={() => handleAction('Produto Recebido', 'Produto recebido fisicamente.')}
+            onClick={() => handleAction('Produto Recebido', 'Produto recebido.')}
             className="w-full bg-indigo-600 hover:bg-indigo-700"
           >
-            <Package className="w-4 h-4 mr-2" /> Confirmar Recebimento do Produto
+            <Package className="w-4 h-4 mr-2" /> Confirmar Recebimento
           </Button>
         )}
 
         {process.status === 'Produto Recebido' &&
           (process.type === 'Devolução Comum' ? (
             <Button
-              onClick={() =>
-                handleAction(
-                  'Conferência de Estoque',
-                  'Processo enviado para conferência de estoque.',
-                )
-              }
+              onClick={() => handleAction('Conferência de Estoque', 'Em conferência.')}
               className="w-full bg-amber-600 hover:bg-amber-700"
             >
-              <ClipboardCheck className="w-4 h-4 mr-2" /> Iniciar Conferência de Estoque
+              <ClipboardCheck className="w-4 h-4 mr-2" /> Conferência de Estoque
             </Button>
           ) : (
             <Button
-              onClick={() =>
-                handleAction('Enviado ao Fornecedor', 'Produto marcado como enviado ao fornecedor.')
-              }
+              onClick={() => handleAction('Enviado ao Fornecedor', 'Enviado ao fornecedor.')}
               className="w-full bg-indigo-600 hover:bg-indigo-700"
             >
               <Truck className="w-4 h-4 mr-2" /> Confirmar envio ao Fornecedor
@@ -186,35 +235,25 @@ export function ActionPanel({ process }: { process: Process }) {
 
         {process.status === 'Enviado ao Fornecedor' && (
           <Button
-            onClick={() =>
-              handleAction('Aguardando Créditos', 'Acompanhamento de créditos iniciado.')
-            }
+            onClick={() => handleAction('Aguardando Créditos', 'Acompanhamento iniciado.')}
             className="w-full bg-sky-600 hover:bg-sky-700"
           >
-            <ArrowRight className="w-4 h-4 mr-2" /> Iniciar Acompanhamento de Créditos
+            <ArrowRight className="w-4 h-4 mr-2" /> Acompanhamento de Créditos
           </Button>
         )}
 
-        {process.status === 'Aguardando Créditos' &&
-          (process.customerCreditReleased ? (
-            <Button
-              onClick={() =>
-                handleAction('Finalizado', 'Processo finalizado com crédito ao cliente!')
-              }
-              className="w-full bg-emerald-600 hover:bg-emerald-700"
-            >
-              <Check className="w-4 h-4 mr-2" /> Arquivar / Finalizar Processo
-            </Button>
-          ) : (
-            <div className="p-3 bg-sky-50 text-sky-800 text-sm text-center rounded-md border border-sky-100">
-              Utilize o painel acima para registrar a liberação do crédito ao cliente e habilitar a
-              finalização.
-            </div>
-          ))}
+        {process.status === 'Aguardando Créditos' && process.customerCreditReleased && (
+          <Button
+            onClick={() => handleAction('Finalizado', 'Processo finalizado!')}
+            className="w-full bg-emerald-600 hover:bg-emerald-700"
+          >
+            <Check className="w-4 h-4 mr-2" /> Arquivar / Finalizar Processo
+          </Button>
+        )}
 
         {(process.status === 'Crédito Liberado' || process.status === 'Crédito Recusado') && (
           <Button
-            onClick={() => handleAction('Finalizado', 'Processo finalizado e arquivado.')}
+            onClick={() => handleAction('Finalizado', 'Processo finalizado.')}
             variant="outline"
             className="w-full"
           >

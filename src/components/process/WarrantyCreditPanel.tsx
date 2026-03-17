@@ -9,8 +9,6 @@ export function WarrantyCreditPanel({ process }: { process: Process }) {
   const { updateProcess } = useProcessStore()
 
   if (process.type !== 'Garantia') return null
-  if (!['Enviado ao Fornecedor', 'Aguardando Créditos', 'Finalizado'].includes(process.status))
-    return null
 
   return (
     <Card className="border-none shadow-sm bg-slate-50 border border-slate-100 mb-6 animate-fade-in">
@@ -45,24 +43,26 @@ export function WarrantyCreditPanel({ process }: { process: Process }) {
 
         <div className="flex items-center justify-between pt-2 border-t border-slate-200">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-white rounded-md border shadow-sm">
+            <div className="p-2 bg-white rounded-md border shadow-sm flex-shrink-0">
               <UserCircle className="w-5 h-5 text-brand-blue" />
             </div>
             <div>
-              <Label className="text-sm font-semibold text-slate-800 cursor-pointer">
+              <Label className="text-sm font-semibold text-slate-800">
                 Crédito ao Cliente Liberado
               </Label>
               <p className="text-xs text-slate-500 mt-0.5">
                 O crédito foi disponibilizado na conta do cliente
               </p>
+              {!process.customerCreditReleased && process.status !== 'Finalizado' && (
+                <p className="text-xs text-brand-blue mt-1 font-medium">
+                  * Utilize o painel de Ações Disponíveis para liberar.
+                </p>
+              )}
             </div>
           </div>
           <Switch
             checked={!!process.customerCreditReleased}
-            disabled={process.status === 'Finalizado'}
-            onCheckedChange={(checked) =>
-              updateProcess(process.id, { customerCreditReleased: checked })
-            }
+            disabled={true} // Controlled via Action Panel to enforce reason collection
           />
         </div>
       </CardContent>

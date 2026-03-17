@@ -55,6 +55,7 @@ export interface Process {
   creditDecisionReason?: string
   supplierCreditReceived?: boolean
   customerCreditReleased?: boolean
+  creditAnticipated?: boolean
 }
 
 export type Role = 'Admin' | 'Vendedor' | 'Cliente'

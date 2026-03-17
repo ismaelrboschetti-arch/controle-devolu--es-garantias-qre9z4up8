@@ -41,6 +41,34 @@ export function ProcessTimeline({ process }: { process: Process }) {
       <div className="timeline-line"></div>
 
       <div className="space-y-8 relative z-10">
+        {process.type === 'Garantia' && process.customerCreditReleased && (
+          <div className="flex gap-4 items-start group mb-8">
+            <div className="mt-0.5 rounded-full bg-emerald-50 relative z-10">
+              <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+            </div>
+            <div className="flex-1">
+              <h4 className="font-semibold text-sm text-emerald-700">
+                {process.creditAnticipated
+                  ? 'Crédito Antecipado ao Cliente'
+                  : 'Crédito ao Cliente Liberado'}
+              </h4>
+              <p className="text-xs text-slate-500 mt-1">
+                {process.creditAnticipated
+                  ? 'Crédito liberado comercialmente antes da conclusão logística.'
+                  : 'Crédito disponibilizado ao cliente.'}
+              </p>
+              {process.creditDecisionReason && (
+                <div className="mt-2 p-3 bg-emerald-50 border border-emerald-100 rounded-md text-sm text-slate-700 animate-fade-in-up">
+                  <span className="font-semibold block mb-1 text-emerald-800">
+                    Motivo da Liberação:
+                  </span>
+                  {process.creditDecisionReason}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {steps.map((step, index) => {
           const isCompleted =
             index < activeIndex ||
@@ -85,11 +113,12 @@ export function ProcessTimeline({ process }: { process: Process }) {
           const showReason =
             index === 5 &&
             process.creditDecisionReason &&
-            (process.status === 'Crédito Liberado' || process.status === 'Crédito Recusado')
+            (process.status === 'Crédito Liberado' || process.status === 'Crédito Recusado') &&
+            process.type !== 'Garantia' // For Garantia, the reason is displayed in the special injected node above
 
           return (
             <div key={`${step}-${index}`} className="flex gap-4 items-start group">
-              <div className={`mt-0.5 rounded-full ${bgColor}`}>
+              <div className={`mt-0.5 rounded-full ${bgColor} relative z-10`}>
                 {isCompleted || (index === 5 && process.status === 'Crédito Recusado') ? (
                   process.status === 'Crédito Recusado' && index === 5 ? (
                     <CheckCircle2 className="w-6 h-6 text-rose-500" />
