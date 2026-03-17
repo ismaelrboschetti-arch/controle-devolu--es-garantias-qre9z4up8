@@ -46,6 +46,7 @@ export interface Process {
   // Media & Tracking
   evidenceUrls?: string[]
   returnInvoiceUrl?: string
+  returnInvoiceName?: string
 }
 
 export type Role = 'Admin' | 'Vendedor' | 'Cliente'

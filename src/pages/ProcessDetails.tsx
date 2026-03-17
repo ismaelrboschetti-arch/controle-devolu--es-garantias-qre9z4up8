@@ -15,6 +15,7 @@ import { useProcessStore } from '@/contexts/ProcessContext'
 import { StatusBadge } from '@/components/StatusBadge'
 import { ProcessTimeline } from '@/components/process/ProcessTimeline'
 import { ActionPanel } from '@/components/process/ActionPanel'
+import { InvoiceUploadPanel } from '@/components/process/InvoiceUploadPanel'
 
 export default function ProcessDetails() {
   const { id } = useParams()
@@ -168,14 +169,15 @@ export default function ProcessDetails() {
                       <p className="text-xs font-medium text-purple-600 mb-1 flex items-center gap-1.5">
                         <FileText className="w-3.5 h-3.5" /> Nota Fiscal de Devolução Anexada
                       </p>
-                      <p className="text-sm text-purple-900 font-medium">
-                        Documento disponível para validação da equipe
+                      <p className="text-sm text-purple-900 font-medium truncate max-w-[200px] sm:max-w-md">
+                        {process.returnInvoiceName ||
+                          'Documento disponível para validação da equipe'}
                       </p>
                     </div>
                     <Button
                       variant="outline"
                       size="sm"
-                      className="bg-white border-purple-200 text-purple-700 hover:bg-purple-100"
+                      className="bg-white border-purple-200 text-purple-700 hover:bg-purple-100 shrink-0 ml-4"
                       asChild
                     >
                       <a href={process.returnInvoiceUrl} target="_blank" rel="noreferrer">
@@ -217,6 +219,8 @@ export default function ProcessDetails() {
               </div>
             </CardContent>
           </Card>
+
+          <InvoiceUploadPanel process={process} />
 
           <Card className="border-none shadow-sm">
             <CardHeader className="pb-3 border-b">
