@@ -75,23 +75,14 @@ export function ActionPanel({ process }: { process: Process }) {
         </Button>
       )}
 
-      {process.status === 'Produto Recebido' && process.type === 'Devolução Comum' && (
-        <Button
-          onClick={() => handleAction('Crédito Liberado', 'Crédito Liberado ao Cliente!')}
-          className="w-full bg-brand-blue hover:bg-blue-600"
-        >
-          <Wallet className="w-4 h-4 mr-2" /> Confirmar e Liberar Crédito
-        </Button>
-      )}
-
-      {process.status === 'Produto Recebido' && process.type === 'Garantia' && (
+      {process.status === 'Produto Recebido' && (
         <Button
           onClick={() =>
             handleAction('Enviado ao Fornecedor', 'Produto marcado como enviado ao fornecedor.')
           }
           className="w-full bg-indigo-600 hover:bg-indigo-700"
         >
-          <Truck className="w-4 h-4 mr-2" /> Informar Envio ao Fornecedor
+          <Truck className="w-4 h-4 mr-2" /> Confirmar envio ao Fornecedor
         </Button>
       )}
 
@@ -102,7 +93,7 @@ export function ActionPanel({ process }: { process: Process }) {
           }
           className="w-full bg-emerald-600 hover:bg-emerald-700"
         >
-          <Wallet className="w-4 h-4 mr-2" /> Confirmar Crédito do Fornecedor
+          <Wallet className="w-4 h-4 mr-2" /> Confirmar e Liberar Crédito
         </Button>
       )}
 

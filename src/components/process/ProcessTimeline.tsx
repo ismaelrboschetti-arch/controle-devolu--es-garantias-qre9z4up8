@@ -49,6 +49,22 @@ export function ProcessTimeline({ currentStatus }: { currentStatus: ProcessStatu
             bgColor = 'bg-rose-50'
           }
 
+          let displayStep = step
+          if (step === 'Pendente de Análise' && currentStatus === 'NF Recusada') {
+            displayStep = 'Análise Recusada'
+          } else if (
+            step === 'Autorizado emissão da nota fiscal' &&
+            currentStatus === 'Nota Fiscal em Análise'
+          ) {
+            displayStep = 'Nota Fiscal em Análise'
+          } else if (step === 'Produto Recebido') {
+            displayStep = 'Recebimento'
+          } else if (step === 'Enviado ao Fornecedor') {
+            displayStep = 'Envio ao Fornecedor'
+          } else if (step === 'Crédito Liberado') {
+            displayStep = 'Liberação de Crédito'
+          }
+
           return (
             <div key={step} className="flex gap-4 items-start group">
               <div className={`mt-0.5 rounded-full ${bgColor}`}>
@@ -62,12 +78,7 @@ export function ProcessTimeline({ currentStatus }: { currentStatus: ProcessStatu
                 <h4
                   className={`font-semibold text-sm ${isCurrent || isCompleted ? 'text-slate-900' : 'text-slate-500'}`}
                 >
-                  {step === 'Pendente de Análise' && currentStatus === 'NF Recusada'
-                    ? 'Análise Recusada'
-                    : step === 'Autorizado emissão da nota fiscal' &&
-                        currentStatus === 'Nota Fiscal em Análise'
-                      ? 'Nota Fiscal em Análise'
-                      : step}
+                  {displayStep}
                 </h4>
                 {isCurrent && (
                   <p className="text-xs text-slate-500 mt-1">
