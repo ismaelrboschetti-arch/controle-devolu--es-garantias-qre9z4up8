@@ -56,6 +56,11 @@ export interface Process {
   supplierCreditReceived?: boolean
   customerCreditReleased?: boolean
   creditAnticipated?: boolean
+
+  // Exception Authorization
+  managerAuthorized?: boolean
+  authorizedBy?: string
+  authorizedAt?: string
 }
 
-export type Role = 'Admin' | 'Vendedor' | 'Cliente'
+export type Role = 'Admin' | 'Coordenador' | 'Gerente' | 'Diretor' | 'Vendedor' | 'Cliente'

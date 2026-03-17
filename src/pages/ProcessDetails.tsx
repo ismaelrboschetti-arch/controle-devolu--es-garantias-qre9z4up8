@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -17,12 +18,34 @@ import { ProcessTimeline } from '@/components/process/ProcessTimeline'
 import { ActionPanel } from '@/components/process/ActionPanel'
 import { InvoiceUploadPanel } from '@/components/process/InvoiceUploadPanel'
 import { WarrantyCreditPanel } from '@/components/process/WarrantyCreditPanel'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Role } from '@/lib/types'
 
 export default function ProcessDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { processes } = useProcessStore()
+  const { processes, role, setRole } = useProcessStore()
   const process = processes.find((p) => p.id === id)
+
+  const isExceeded = useMemo(() => {
+    if (!process) return false
+    const requestDate = new Date(process.requestDate)
+    const diffTime = Math.abs(new Date().getTime() - requestDate.getTime())
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+    if (process.type === 'Devolução Comum') return diffDays > 7
+    if (process.type === 'Garantia') {
+      if (process.category === 'Amortecedor') return diffDays > 365
+      return diffDays > 90
+    }
+    return false
+  }, [process])
 
   if (!process) {
     return (
@@ -43,6 +66,8 @@ export default function ProcessDetails() {
     process.status !== 'Crédito Liberado' &&
     process.status !== 'Finalizado' &&
     !process.customerCreditReleased
+
+  const needsAuthorization = isExceeded && !process.managerAuthorized
 
   return (
     <div className="flex flex-col gap-6 animate-slide-up pb-10">
@@ -66,10 +91,43 @@ export default function ProcessDetails() {
             </p>
           </div>
         </div>
+
+        {/* Role Switcher for Testing */}
+        <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-lg border border-slate-200 shadow-sm">
+          <span className="text-xs font-medium text-slate-500 hidden sm:inline-block">
+            Simular Perfil:
+          </span>
+          <Select value={role} onValueChange={(v) => setRole(v as Role)}>
+            <SelectTrigger className="w-[180px] h-9 text-xs">
+              <SelectValue placeholder="Perfil" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Admin">Admin</SelectItem>
+              <SelectItem value="Coordenador">Coordenador (Guilherme)</SelectItem>
+              <SelectItem value="Gerente">Gerente (Jonathan)</SelectItem>
+              <SelectItem value="Diretor">Diretor (Ismael)</SelectItem>
+              <SelectItem value="Vendedor">Vendedor</SelectItem>
+              <SelectItem value="Cliente">Cliente</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      {isOverdue && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
+      {needsAuthorization && (
+        <div className="bg-rose-50 border border-rose-200 rounded-lg p-4 flex items-start gap-3 shadow-sm animate-fade-in">
+          <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+          <div>
+            <h4 className="font-semibold text-rose-900">Autorização Necessária</h4>
+            <p className="text-sm text-rose-700 mt-1">
+              Atenção: Esta solicitação excede o prazo padrão e requer autorização da gerência para
+              prosseguir.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {isOverdue && !needsAuthorization && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3 shadow-sm animate-fade-in">
           <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
           <div>
             <h4 className="font-semibold text-amber-900">Prazo Legal Excedido (60 dias)</h4>
@@ -225,7 +283,7 @@ export default function ProcessDetails() {
             </CardContent>
           </Card>
 
-          <InvoiceUploadPanel process={process} />
+          {!needsAuthorization && <InvoiceUploadPanel process={process} />}
 
           <Card className="border-none shadow-sm">
             <CardHeader className="pb-3 border-b">
@@ -259,14 +317,14 @@ export default function ProcessDetails() {
             </CardContent>
           </Card>
 
-          <WarrantyCreditPanel process={process} />
+          <WarrantyCreditPanel process={process} disabled={needsAuthorization} />
 
           <Card className="border-none shadow-sm">
             <CardHeader className="pb-3 border-b">
               <CardTitle className="text-lg">Ações Disponíveis</CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
-              <ActionPanel process={process} />
+              <ActionPanel process={process} needsAuthorization={needsAuthorization} />
             </CardContent>
           </Card>
         </div>

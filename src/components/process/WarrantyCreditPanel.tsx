@@ -5,7 +5,13 @@ import { Process } from '@/lib/types'
 import { useProcessStore } from '@/contexts/ProcessContext'
 import { Building2, UserCircle } from 'lucide-react'
 
-export function WarrantyCreditPanel({ process }: { process: Process }) {
+export function WarrantyCreditPanel({
+  process,
+  disabled,
+}: {
+  process: Process
+  disabled?: boolean
+}) {
   const { updateProcess } = useProcessStore()
 
   if (process.type !== 'Garantia') return null
@@ -34,7 +40,7 @@ export function WarrantyCreditPanel({ process }: { process: Process }) {
           </div>
           <Switch
             checked={!!process.supplierCreditReceived}
-            disabled={process.status === 'Finalizado'}
+            disabled={process.status === 'Finalizado' || disabled}
             onCheckedChange={(checked) =>
               updateProcess(process.id, { supplierCreditReceived: checked })
             }

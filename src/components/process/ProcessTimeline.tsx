@@ -1,4 +1,4 @@
-import { CheckCircle2, Circle } from 'lucide-react'
+import { CheckCircle2, Circle, ShieldCheck } from 'lucide-react'
 import { Process } from '@/lib/types'
 
 export function ProcessTimeline({ process }: { process: Process }) {
@@ -41,6 +41,22 @@ export function ProcessTimeline({ process }: { process: Process }) {
       <div className="timeline-line"></div>
 
       <div className="space-y-8 relative z-10">
+        {process.managerAuthorized && (
+          <div className="flex gap-4 items-start group mb-8">
+            <div className="mt-0.5 rounded-full bg-indigo-50 relative z-10 border border-indigo-100 p-0.5">
+              <ShieldCheck className="w-5 h-5 text-indigo-500" />
+            </div>
+            <div className="flex-1">
+              <h4 className="font-semibold text-sm text-indigo-700">Exceção Autorizada</h4>
+              <p className="text-xs text-slate-500 mt-1">
+                Processo autorizado por{' '}
+                <span className="font-semibold">{process.authorizedBy}</span> em{' '}
+                {new Date(process.authorizedAt!).toLocaleString('pt-BR')}.
+              </p>
+            </div>
+          </div>
+        )}
+
         {process.type === 'Garantia' && process.customerCreditReleased && (
           <div className="flex gap-4 items-start group mb-8">
             <div className="mt-0.5 rounded-full bg-emerald-50 relative z-10">

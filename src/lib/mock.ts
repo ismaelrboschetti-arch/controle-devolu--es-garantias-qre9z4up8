@@ -1,5 +1,12 @@
 import { Process } from './types'
 
+const today = new Date()
+const daysAgo = (days: number) => {
+  const d = new Date(today)
+  d.setDate(d.getDate() - days)
+  return d.toISOString().split('T')[0]
+}
+
 export const mockProcesses: Process[] = [
   {
     id: 'DEV-1001',
@@ -9,12 +16,12 @@ export const mockProcesses: Process[] = [
     sku: 'FA-100',
     supplier: 'Filtros S/A',
     seller: 'João Pedro',
-    requestDate: '2023-10-01',
+    requestDate: daysAgo(5),
     value: 150.0,
     status: 'Pendente de Análise',
-    slaDays: 2,
+    slaDays: 5,
     category: 'Outros',
-    purchaseDate: '2023-09-25',
+    purchaseDate: daysAgo(20),
     invoiceNumber: 'NF-12345',
     returnReason: '1 - Comprei errado',
     returnDescription: 'Comprei o filtro para o modelo antigo do carro.',
@@ -27,16 +34,16 @@ export const mockProcesses: Process[] = [
     sku: 'AM-200',
     supplier: 'Monroe',
     seller: 'Ana',
-    requestDate: '2023-09-15',
+    requestDate: daysAgo(400), // > 365 days (Excedido)
     value: 450.0,
-    status: 'Produto Recebido',
-    slaDays: 18,
+    status: 'Pendente de Análise',
+    slaDays: 400,
     category: 'Amortecedor',
-    purchaseDate: '2023-01-10',
+    purchaseDate: daysAgo(450),
     invoiceNumber: 'NF-54321',
-    applicationDate: '2023-01-15',
+    applicationDate: daysAgo(440),
     applicationKm: 12000,
-    defectDate: '2023-09-10',
+    defectDate: daysAgo(410),
     defectKm: 25000,
     defectDescription: 'Vazamento de óleo prematuro na peça esquerda.',
   },
@@ -48,11 +55,11 @@ export const mockProcesses: Process[] = [
     sku: 'PF-300',
     supplier: 'Bosch',
     seller: 'Carlos',
-    requestDate: '2023-07-10',
+    requestDate: daysAgo(100), // > 90 days (Excedido)
     value: 120.0,
     status: 'Nota Fiscal em Análise',
     returnInvoiceUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-    slaDays: 65,
+    slaDays: 100,
     category: 'Outros',
   },
   {
@@ -63,10 +70,10 @@ export const mockProcesses: Process[] = [
     sku: 'CD-400',
     supplier: 'Gates',
     seller: 'Ana',
-    requestDate: '2023-10-05',
+    requestDate: daysAgo(10), // > 7 days (Excedido)
     value: 85.0,
     status: 'Conferência de Estoque',
-    slaDays: 5,
+    slaDays: 10,
     category: 'Outros',
   },
   {
@@ -77,12 +84,12 @@ export const mockProcesses: Process[] = [
     sku: 'BD-500',
     supplier: 'Urba',
     seller: 'João Pedro',
-    requestDate: '2023-08-01',
+    requestDate: daysAgo(50),
     value: 320.0,
     status: 'Aguardando Créditos',
     supplierCreditReceived: false,
     customerCreditReleased: true,
-    slaDays: 45,
+    slaDays: 50,
     category: 'Outros',
   },
   {
@@ -93,11 +100,11 @@ export const mockProcesses: Process[] = [
     sku: 'VI-600',
     supplier: 'NGK',
     seller: 'Carlos',
-    requestDate: '2023-10-06',
+    requestDate: daysAgo(2),
     value: 60.0,
     status: 'Crédito Recusado',
     creditDecisionReason: 'Peça apresenta sinais de uso incorreto, impossibilitando revenda.',
-    slaDays: 1,
+    slaDays: 2,
     category: 'Outros',
   },
   {
@@ -108,10 +115,10 @@ export const mockProcesses: Process[] = [
     sku: 'AM-201',
     supplier: 'Monroe',
     seller: 'Ana',
-    requestDate: '2023-06-20',
+    requestDate: daysAgo(10),
     value: 450.0,
     status: 'Autorizado emissão da nota fiscal',
-    slaDays: 72,
+    slaDays: 10,
     category: 'Amortecedor',
   },
 ]

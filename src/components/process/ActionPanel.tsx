@@ -3,7 +3,16 @@ import { Button } from '@/components/ui/button'
 import { Process, ProcessStatus } from '@/lib/types'
 import { useProcessStore } from '@/contexts/ProcessContext'
 import { toast } from 'sonner'
-import { Check, X, Truck, Wallet, Package, ClipboardCheck, ArrowRight } from 'lucide-react'
+import {
+  Check,
+  X,
+  Truck,
+  Wallet,
+  Package,
+  ClipboardCheck,
+  ArrowRight,
+  ShieldAlert,
+} from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -15,7 +24,13 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 
-export function ActionPanel({ process }: { process: Process }) {
+export function ActionPanel({
+  process,
+  needsAuthorization,
+}: {
+  process: Process
+  needsAuthorization?: boolean
+}) {
   const { role, updateStatus, updateProcess } = useProcessStore()
   const [isReasonOpen, setIsReasonOpen] = useState(false)
   const [reasonType, setReasonType] = useState<'approve' | 'refuse' | 'anticipate'>('approve')
@@ -55,10 +70,53 @@ export function ActionPanel({ process }: { process: Process }) {
     toast.success(`Crédito ${reasonType === 'approve' ? 'liberado' : 'recusado'} com sucesso.`)
   }
 
-  if (role !== 'Admin') {
+  const handleAuthorizeProcess = () => {
+    let authorizerName = role
+    if (role === 'Gerente') authorizerName = 'Jonathan (Gerente)'
+    if (role === 'Diretor') authorizerName = 'Ismael (Diretor)'
+    if (role === 'Admin') authorizerName = 'Administrador'
+
+    updateProcess(process.id, {
+      managerAuthorized: true,
+      authorizedBy: authorizerName,
+      authorizedAt: new Date().toISOString(),
+    })
+    toast.success('Processo autorizado com sucesso.')
+  }
+
+  const isInternal = ['Admin', 'Coordenador', 'Gerente', 'Diretor'].includes(role)
+  const canAuthorize = ['Gerente', 'Diretor', 'Admin'].includes(role)
+
+  if (!isInternal) {
     return (
       <div className="p-4 bg-slate-50 rounded-lg text-sm text-slate-500 text-center border border-slate-100">
         Visualização restrita. Apenas a equipe interna pode avançar etapas.
+      </div>
+    )
+  }
+
+  if (needsAuthorization) {
+    return (
+      <div className="space-y-4 animate-fade-in">
+        <div className="p-4 bg-rose-50 rounded-lg text-sm text-rose-700 text-center border border-rose-100 flex flex-col items-center gap-2">
+          <ShieldAlert className="w-6 h-6 text-rose-500" />
+          <p>
+            As ações logísticas e financeiras estão bloqueadas devido ao vencimento do prazo da
+            solicitação.
+          </p>
+        </div>
+        {canAuthorize ? (
+          <Button
+            onClick={handleAuthorizeProcess}
+            className="w-full bg-rose-600 hover:bg-rose-700 text-white shadow-sm"
+          >
+            <Check className="w-4 h-4 mr-2" /> Autorizar Processo
+          </Button>
+        ) : (
+          <div className="text-center text-xs text-slate-500 pt-2">
+            Apenas Gerente ou Diretor podem autorizar o prosseguimento.
+          </div>
+        )}
       </div>
     )
   }
@@ -102,8 +160,8 @@ export function ActionPanel({ process }: { process: Process }) {
               onClick={handleReasonSubmit}
               className={
                 reasonType === 'approve' || reasonType === 'anticipate'
-                  ? 'bg-emerald-600 hover:bg-emerald-700'
-                  : 'bg-red-600 hover:bg-red-700'
+                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                  : 'bg-rose-600 hover:bg-rose-700 text-white'
               }
             >
               Confirmar{' '}
@@ -117,7 +175,7 @@ export function ActionPanel({ process }: { process: Process }) {
         </DialogContent>
       </Dialog>
 
-      <div className="space-y-3">
+      <div className="space-y-3 animate-fade-in">
         {process.type === 'Garantia' &&
           !process.customerCreditReleased &&
           !['Finalizado', 'Crédito Recusado'].includes(process.status) && (
@@ -166,7 +224,7 @@ export function ActionPanel({ process }: { process: Process }) {
               onClick={() =>
                 handleAction('Autorizado emissão da nota fiscal', 'Emissão autorizada.')
               }
-              className="bg-brand-blue hover:bg-blue-600 flex-1"
+              className="bg-brand-blue hover:bg-blue-600 text-white flex-1"
             >
               <Check className="w-4 h-4 mr-2" /> Autorizar NF
             </Button>
@@ -183,7 +241,7 @@ export function ActionPanel({ process }: { process: Process }) {
         {process.status === 'Nota Fiscal em Análise' && (
           <Button
             onClick={() => handleAction('Envio da Mercadoria Autorizado', 'Nota aprovada.')}
-            className="w-full bg-emerald-600 hover:bg-emerald-700"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
           >
             <Check className="w-4 h-4 mr-2" /> Aprovar e Autorizar Envio
           </Button>
@@ -192,7 +250,7 @@ export function ActionPanel({ process }: { process: Process }) {
         {process.status === 'Envio da Mercadoria Autorizado' && (
           <Button
             onClick={() => handleAction('Produto Recebido', 'Produto recebido.')}
-            className="w-full bg-indigo-600 hover:bg-indigo-700"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
           >
             <Package className="w-4 h-4 mr-2" /> Confirmar Recebimento
           </Button>
@@ -202,14 +260,14 @@ export function ActionPanel({ process }: { process: Process }) {
           (process.type === 'Devolução Comum' ? (
             <Button
               onClick={() => handleAction('Conferência de Estoque', 'Em conferência.')}
-              className="w-full bg-amber-600 hover:bg-amber-700"
+              className="w-full bg-amber-600 hover:bg-amber-700 text-white"
             >
               <ClipboardCheck className="w-4 h-4 mr-2" /> Conferência de Estoque
             </Button>
           ) : (
             <Button
               onClick={() => handleAction('Enviado ao Fornecedor', 'Enviado ao fornecedor.')}
-              className="w-full bg-indigo-600 hover:bg-indigo-700"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
             >
               <Truck className="w-4 h-4 mr-2" /> Confirmar envio ao Fornecedor
             </Button>
@@ -219,7 +277,7 @@ export function ActionPanel({ process }: { process: Process }) {
           <div className="flex gap-2">
             <Button
               onClick={() => openReasonDialog('approve')}
-              className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
             >
               <Wallet className="w-4 h-4 mr-2" /> Liberar Crédito
             </Button>
@@ -236,7 +294,7 @@ export function ActionPanel({ process }: { process: Process }) {
         {process.status === 'Enviado ao Fornecedor' && (
           <Button
             onClick={() => handleAction('Aguardando Créditos', 'Acompanhamento iniciado.')}
-            className="w-full bg-sky-600 hover:bg-sky-700"
+            className="w-full bg-sky-600 hover:bg-sky-700 text-white"
           >
             <ArrowRight className="w-4 h-4 mr-2" /> Acompanhamento de Créditos
           </Button>
@@ -245,7 +303,7 @@ export function ActionPanel({ process }: { process: Process }) {
         {process.status === 'Aguardando Créditos' && process.customerCreditReleased && (
           <Button
             onClick={() => handleAction('Finalizado', 'Processo finalizado!')}
-            className="w-full bg-emerald-600 hover:bg-emerald-700"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
           >
             <Check className="w-4 h-4 mr-2" /> Arquivar / Finalizar Processo
           </Button>
