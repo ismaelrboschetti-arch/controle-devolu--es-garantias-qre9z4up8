@@ -13,25 +13,47 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+  Command,
+  CommandInput,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { useProcessStore } from '@/contexts/ProcessContext'
+import { useSupplierStore } from '@/contexts/SupplierContext'
 import { ProcessType, ProcessStatus } from '@/lib/types'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-import { Search, UploadCloud, X, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
+import {
+  Search,
+  UploadCloud,
+  X,
+  Loader2,
+  AlertCircle,
+  CheckCircle2,
+  Check,
+  ChevronsUpDown,
+} from 'lucide-react'
 
 export default function NewRequest() {
   const navigate = useNavigate()
   const { addProcess } = useProcessStore()
+  const { suppliers } = useSupplierStore()
 
   const [step, setStep] = useState(1)
   const [type, setType] = useState<ProcessType>('Devolução Comum')
+  const [openSupplier, setOpenSupplier] = useState(false)
 
   const [formData, setFormData] = useState({
     seller: '',
     purchaseDate: '',
     invoiceNumber: '',
     sku: '',
+    supplierId: '',
     customerEmail: '',
     customerPhone: '',
     applicationDate: '',
@@ -79,6 +101,7 @@ export default function NewRequest() {
           seller: 'Adrian',
           purchaseDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           sku: 'FA-100',
+          supplierId: 'SUP-001',
           email: 'joao@email.com',
           phone: '(11) 99999-9999',
         },
@@ -86,17 +109,9 @@ export default function NewRequest() {
           seller: 'Alex',
           purchaseDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           sku: 'AM-200',
+          supplierId: 'SUP-002',
           email: 'maria@email.com',
           phone: '(11) 98888-8888',
-        },
-        'NF-789': {
-          seller: 'Eric',
-          purchaseDate: new Date(Date.now() - 400 * 24 * 60 * 60 * 1000)
-            .toISOString()
-            .split('T')[0],
-          sku: 'PF-300',
-          email: 'jose@email.com',
-          phone: '(11) 97777-7777',
         },
       }
 
@@ -107,6 +122,7 @@ export default function NewRequest() {
           seller: found.seller,
           purchaseDate: found.purchaseDate,
           sku: found.sku,
+          supplierId: found.supplierId || prev.supplierId,
           customerEmail: prev.customerEmail || found.email,
           customerPhone: prev.customerPhone || found.phone,
         }))
@@ -141,23 +157,35 @@ export default function NewRequest() {
         })
       }
     } else if (type === 'Garantia') {
-      if (diffDays > 365) {
-        setValidationMsg({ type: 'error', text: 'Prazo de garantia de 1 ano expirado.' })
+      const sup = suppliers.find((s) => s.id === formData.supplierId)
+      const warrantyLimit = sup?.defaultWarrantyDays || 365
+
+      if (diffDays > warrantyLimit) {
+        setValidationMsg({
+          type: 'error',
+          text: `Prazo de garantia de ${warrantyLimit} dias expirado.`,
+        })
       } else {
         setValidationMsg({
           type: 'success',
-          text: `Garantia ativa. (${365 - diffDays} dias restantes)`,
+          text: `Garantia ativa. (${warrantyLimit - diffDays} dias restantes)`,
         })
       }
     }
-  }, [formData.purchaseDate, type])
+  }, [formData.purchaseDate, type, formData.supplierId, suppliers])
 
   const handleSubmit = () => {
     if (!formData.customerEmail || !formData.customerPhone) {
       return toast.error('Preencha os campos de contato (E-mail e WhatsApp).')
     }
-    if (!formData.seller || !formData.purchaseDate || !formData.invoiceNumber || !formData.sku) {
-      return toast.error('Preencha os campos obrigatórios comuns.')
+    if (
+      !formData.seller ||
+      !formData.purchaseDate ||
+      !formData.invoiceNumber ||
+      !formData.sku ||
+      !formData.supplierId
+    ) {
+      return toast.error('Preencha os campos obrigatórios comuns, incluindo Fornecedor.')
     }
     if (type === 'Garantia') {
       if (
@@ -182,8 +210,8 @@ export default function NewRequest() {
       .toString()
       .padStart(4, '0')
     const id = type === 'Garantia' ? `GRT-${num}` : `DEV-${num}`
-
     const finalStatus: ProcessStatus = 'Pendente de Análise'
+    const selectedSupplier = suppliers.find((s) => s.id === formData.supplierId)
 
     addProcess({
       id,
@@ -194,7 +222,8 @@ export default function NewRequest() {
       customerPhone: formData.customerPhone,
       product: 'Não Informado',
       sku: formData.sku,
-      supplier: 'Não Informado',
+      supplier: selectedSupplier?.name || 'Não Informado',
+      supplierId: formData.supplierId,
       seller: formData.seller,
       requestDate: new Date().toISOString().split('T')[0],
       value: 0,
@@ -219,7 +248,7 @@ export default function NewRequest() {
     })
 
     toast.success('Solicitação criada com sucesso!', {
-      description: `Notificações de acompanhamento enviadas para ${formData.customerEmail} e WhatsApp informando que o produto deve ser enviado para inspeção física.`,
+      description: `Notificações enviadas para o e-mail e WhatsApp do cliente.`,
       icon: '📧',
     })
     navigate(`/processos/${id}`)
@@ -285,7 +314,7 @@ export default function NewRequest() {
                 onClick={() => navigate('/consultar-ticket')}
               >
                 <Search className="w-5 h-5 mr-2" />
-                Consultar Status de Solicitação Existente
+                Consultar Status Existente
               </Button>
             </div>
           ) : (
@@ -317,16 +346,10 @@ export default function NewRequest() {
                       Buscar NF
                     </Button>
                   </div>
-                  {invoiceStatus === 'not_found' && (
-                    <p className="text-sm text-red-500 font-medium mt-1">
-                      Nota Fiscal não encontrada. Por favor, verifique o número ou preencha
-                      manualmente
-                    </p>
-                  )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label>E-mail para notificações *</Label>
+                  <Label>E-mail do Cliente *</Label>
                   <Input
                     type="email"
                     value={formData.customerEmail}
@@ -335,7 +358,7 @@ export default function NewRequest() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>WhatsApp (Celular) *</Label>
+                  <Label>WhatsApp do Cliente *</Label>
                   <Input
                     value={formData.customerPhone}
                     onChange={(e) => setFormData({ ...formData, customerPhone: e.target.value })}
@@ -343,8 +366,64 @@ export default function NewRequest() {
                   />
                 </div>
 
+                <div className="space-y-2 md:col-span-2">
+                  <Label>Fornecedor *</Label>
+                  <Popover open={openSupplier} onOpenChange={setOpenSupplier}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openSupplier}
+                        className={cn(
+                          'w-full justify-between font-normal bg-background',
+                          !formData.supplierId && 'text-muted-foreground',
+                        )}
+                      >
+                        {formData.supplierId
+                          ? suppliers.find((s) => s.id === formData.supplierId)?.name
+                          : 'Selecione o fornecedor...'}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      style={{ width: 'var(--radix-popover-trigger-width)' }}
+                      className="p-0"
+                      align="start"
+                    >
+                      <Command>
+                        <CommandInput placeholder="Buscar fornecedor..." />
+                        <CommandList>
+                          <CommandEmpty>Nenhum fornecedor encontrado.</CommandEmpty>
+                          <CommandGroup>
+                            {suppliers.map((supplier) => (
+                              <CommandItem
+                                key={supplier.id}
+                                value={supplier.name}
+                                onSelect={() => {
+                                  setFormData({ ...formData, supplierId: supplier.id })
+                                  setOpenSupplier(false)
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    'mr-2 h-4 w-4',
+                                    formData.supplierId === supplier.id
+                                      ? 'opacity-100'
+                                      : 'opacity-0',
+                                  )}
+                                />
+                                {supplier.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
                 <div className="space-y-2">
-                  <Label>Vendedor que fez a venda *</Label>
+                  <Label>Vendedor *</Label>
                   <Select
                     disabled={invoiceStatus === 'found'}
                     value={formData.seller}
@@ -358,8 +437,6 @@ export default function NewRequest() {
                       <SelectItem value="Alex">Alex</SelectItem>
                       <SelectItem value="Eric">Eric</SelectItem>
                       <SelectItem value="Lucas Orlando">Lucas Orlando</SelectItem>
-                      <SelectItem value="Lucas Prestes">Lucas Prestes</SelectItem>
-                      <SelectItem value="Northon">Northon</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -466,11 +543,7 @@ export default function NewRequest() {
                         <SelectItem value="2 - Me venderam errado">
                           2 - Me venderam errado
                         </SelectItem>
-                        <SelectItem value="3 - Demorou demais">3 - Demorou demais</SelectItem>
                         <SelectItem value="4 - Chegou avariado">4 - Chegou avariado</SelectItem>
-                        <SelectItem value="5 - Meu cliente desistiu">
-                          5 - Meu cliente desistiu
-                        </SelectItem>
                         <SelectItem value="6 - Outros (descreva o motivo)">
                           6 - Outros (descreva o motivo)
                         </SelectItem>
@@ -478,7 +551,7 @@ export default function NewRequest() {
                     </Select>
                   </div>
                   {formData.returnReason.includes('Outros') && (
-                    <div className="space-y-2 animate-fade-in">
+                    <div className="space-y-2">
                       <Label>Descreva o motivo *</Label>
                       <Input
                         value={formData.otherReason}
@@ -499,16 +572,8 @@ export default function NewRequest() {
               )}
 
               <div className="space-y-3 pt-4 border-t">
-                <Label className="flex items-center gap-2">
-                  Evidências do Produto (Fotos/Vídeos)
-                  {type === 'Devolução Comum' && formData.returnReason.includes('avariado') && (
-                    <span className="text-rose-500 font-normal text-xs bg-rose-50 px-2 py-0.5 rounded">
-                      Obrigatório
-                    </span>
-                  )}
-                </Label>
-
-                <div className="border-2 border-dashed border-slate-200 rounded-lg p-6 text-center hover:bg-slate-50 transition-colors relative cursor-pointer">
+                <Label>Evidências do Produto (Opcional)</Label>
+                <div className="border-2 border-dashed border-slate-200 rounded-lg p-6 text-center hover:bg-slate-50 relative cursor-pointer">
                   <Input
                     type="file"
                     multiple
@@ -517,34 +582,20 @@ export default function NewRequest() {
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                   />
                   <UploadCloud className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-slate-700">
-                    Clique ou arraste arquivos aqui
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1">Formatos: JPG, PNG, MP4 (Máx: 50MB)</p>
+                  <p className="text-sm font-medium text-slate-700">Adicionar arquivos</p>
                 </div>
-
                 {files.length > 0 && (
-                  <div className="flex gap-3 flex-wrap mt-4 animate-fade-in">
+                  <div className="flex gap-3 flex-wrap mt-4">
                     {files.map((file, i) => (
-                      <div
-                        key={i}
-                        className="relative w-20 h-20 border rounded-md overflow-hidden bg-slate-100 group shadow-sm"
-                      >
-                        {file.file.type.startsWith('image/') ? (
-                          <img
-                            src={file.url}
-                            className="w-full h-full object-cover"
-                            alt="preview"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-slate-800 text-white text-[10px] font-bold tracking-wider">
-                            VÍDEO
-                          </div>
-                        )}
+                      <div key={i} className="relative w-20 h-20 border rounded-md group shadow-sm">
+                        <img
+                          src={file.url}
+                          className="w-full h-full object-cover rounded-md"
+                          alt="preview"
+                        />
                         <button
                           onClick={() => removeFile(i)}
-                          className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-20"
-                          title="Remover arquivo"
+                          className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 z-20"
                         >
                           <X className="w-3 h-3" />
                         </button>

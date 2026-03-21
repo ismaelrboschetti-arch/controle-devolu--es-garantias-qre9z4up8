@@ -16,6 +16,15 @@ export type ProcessStatus =
 export type ProcessType = 'Devolução Comum' | 'Garantia'
 export type ProductCategory = 'Amortecedor' | 'Outros'
 
+export interface Supplier {
+  id: string
+  name: string
+  manufacturer: string
+  contactEmail: string
+  phone?: string
+  defaultWarrantyDays?: number
+}
+
 export interface Process {
   id: string
   type: ProcessType
@@ -23,6 +32,7 @@ export interface Process {
   product: string
   sku: string
   supplier: string
+  supplierId?: string
   seller: string
   requestDate: string
   value: number
