@@ -23,6 +23,7 @@ export interface Supplier {
   contactEmail: string
   phone?: string
   defaultWarrantyDays?: number
+  warrantyPolicyUrl?: string
 }
 
 export interface Process {

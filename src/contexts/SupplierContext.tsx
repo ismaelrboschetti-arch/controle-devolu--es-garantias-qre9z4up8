@@ -23,6 +23,7 @@ const mockSuppliers: Supplier[] = [
     manufacturer: 'Monroe',
     contactEmail: 'garantia@monroe.com',
     defaultWarrantyDays: 365,
+    warrantyPolicyUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
   },
   {
     id: 'SUP-003',

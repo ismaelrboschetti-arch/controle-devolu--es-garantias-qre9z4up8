@@ -10,7 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Card } from '@/components/ui/card'
-import { Search, Plus, Edit, Trash2 } from 'lucide-react'
+import { Search, Plus, Edit, Trash2, FileText } from 'lucide-react'
 import { useSupplierStore } from '@/contexts/SupplierContext'
 import { SupplierFormDialog } from '@/components/supplier/SupplierFormDialog'
 import { SupplierDeleteDialog } from '@/components/supplier/SupplierDeleteDialog'
@@ -82,13 +82,14 @@ export default function SupplierList() {
               <TableHead>Fabricante</TableHead>
               <TableHead>Contato</TableHead>
               <TableHead>Garantia Padrão</TableHead>
+              <TableHead>Política</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-slate-500">
+                <TableCell colSpan={6} className="text-center py-8 text-slate-500">
                   Nenhum fornecedor encontrado.
                 </TableCell>
               </TableRow>
@@ -108,6 +109,23 @@ export default function SupplierList() {
                       <span className="font-medium">{s.defaultWarrantyDays} dias</span>
                     ) : (
                       <span className="text-slate-400 text-sm">Não definido</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {s.warrantyPolicyUrl ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        asChild
+                        className="text-brand-blue hover:text-blue-700 hover:bg-blue-50 border-blue-200"
+                      >
+                        <a href={s.warrantyPolicyUrl} target="_blank" rel="noreferrer">
+                          <FileText className="w-4 h-4 mr-2" />
+                          Ver Política
+                        </a>
+                      </Button>
+                    ) : (
+                      <span className="text-slate-400 text-sm">-</span>
                     )}
                   </TableCell>
                   <TableCell className="text-right">

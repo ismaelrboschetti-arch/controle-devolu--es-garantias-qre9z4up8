@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,7 @@ interface Props {
 
 export function SupplierFormDialog({ open, onOpenChange, supplier }: Props) {
   const { addSupplier, updateSupplier } = useSupplierStore()
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [formData, setFormData] = useState({
     name: '',
@@ -29,6 +30,8 @@ export function SupplierFormDialog({ open, onOpenChange, supplier }: Props) {
     phone: '',
     defaultWarrantyDays: '',
   })
+
+  const [policyFile, setPolicyFile] = useState<File | null>(null)
 
   useEffect(() => {
     if (open) {
@@ -49,6 +52,10 @@ export function SupplierFormDialog({ open, onOpenChange, supplier }: Props) {
           defaultWarrantyDays: '',
         })
       }
+      setPolicyFile(null)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
     }
   }, [open, supplier])
 
@@ -59,6 +66,11 @@ export function SupplierFormDialog({ open, onOpenChange, supplier }: Props) {
       return
     }
 
+    let warrantyPolicyUrl = supplier?.warrantyPolicyUrl
+    if (policyFile) {
+      warrantyPolicyUrl = URL.createObjectURL(policyFile)
+    }
+
     const payload = {
       name: formData.name,
       manufacturer: formData.manufacturer,
@@ -67,6 +79,7 @@ export function SupplierFormDialog({ open, onOpenChange, supplier }: Props) {
       defaultWarrantyDays: formData.defaultWarrantyDays
         ? parseInt(formData.defaultWarrantyDays, 10)
         : undefined,
+      warrantyPolicyUrl,
     }
 
     if (supplier) {
@@ -123,6 +136,29 @@ export function SupplierFormDialog({ open, onOpenChange, supplier }: Props) {
               value={formData.defaultWarrantyDays}
               onChange={(e) => setFormData({ ...formData, defaultWarrantyDays: e.target.value })}
             />
+          </div>
+          <div className="space-y-2">
+            <Label>Política de Garantia (PDF)</Label>
+            <Input
+              type="file"
+              accept=".pdf"
+              ref={fileInputRef}
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) setPolicyFile(file)
+                else setPolicyFile(null)
+              }}
+            />
+            {supplier?.warrantyPolicyUrl && !policyFile && (
+              <p className="text-xs text-slate-500 mt-1">
+                Já possui uma política anexada. Enviar novo arquivo irá substituí-la.
+              </p>
+            )}
+            {policyFile && (
+              <p className="text-xs text-brand-blue font-medium mt-1">
+                Arquivo selecionado: {policyFile.name}
+              </p>
+            )}
           </div>
           <DialogFooter className="pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
