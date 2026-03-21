@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Card } from '@/components/ui/card'
-import { Search, Plus, Filter } from 'lucide-react'
+import { Search, Plus, Filter, Layers } from 'lucide-react'
 import { useProcessStore } from '@/contexts/ProcessContext'
 import { StatusBadge } from '@/components/StatusBadge'
 import { useIsMobile } from '@/hooks/use-mobile'
@@ -31,6 +31,8 @@ export default function ProcessList() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('todos')
 
+  const awaitingBatchCount = processes.filter((p) => p.status === 'Produto Recebido').length
+
   const filtered = processes.filter((p) => {
     const matchesSearch =
       p.id.toLowerCase().includes(search.toLowerCase()) ||
@@ -40,7 +42,7 @@ export default function ProcessList() {
   })
 
   return (
-    <div className="flex flex-col gap-6 animate-slide-up">
+    <div className="flex flex-col gap-6 animate-slide-up pb-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Processos</h1>
@@ -53,6 +55,30 @@ export default function ProcessList() {
           <Plus className="w-4 h-4" /> Nova Solicitação
         </Button>
       </div>
+
+      {awaitingBatchCount > 0 && (
+        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm animate-fade-in">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-indigo-100 rounded-full text-indigo-600 shrink-0">
+              <Layers className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-semibold text-indigo-900">Itens Aguardando Consolidação</h4>
+              <p className="text-sm text-indigo-700">
+                Você tem <strong>{awaitingBatchCount} item(s)</strong> pronto(s) para envio em lote
+                aos fornecedores.
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            className="border-indigo-200 text-indigo-700 hover:bg-indigo-100 bg-white w-full sm:w-auto"
+            onClick={() => navigate('/lotes')}
+          >
+            Gerenciar Lotes
+          </Button>
+        </div>
+      )}
 
       <Card className="p-4 flex flex-col md:flex-row gap-4 border-none shadow-sm">
         <div className="relative flex-1">

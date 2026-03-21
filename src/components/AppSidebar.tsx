@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, FileText, Truck, Users, BarChart3 } from 'lucide-react'
+import { LayoutDashboard, FileText, Truck, Users, BarChart3, Layers } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   Sidebar,
@@ -16,6 +16,7 @@ import {
 const navigation = [
   { name: 'Início', path: '/', icon: LayoutDashboard },
   { name: 'Processos', path: '/processos', icon: FileText },
+  { name: 'Lotes de Envio', path: '/lotes', icon: Layers },
   { name: 'Fornecedores', path: '/fornecedores', icon: Truck },
   { name: 'Clientes', path: '/clientes', icon: Users },
   { name: 'Relatórios', path: '/relatorios', icon: BarChart3 },

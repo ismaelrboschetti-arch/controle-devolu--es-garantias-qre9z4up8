@@ -121,6 +121,48 @@ export const mockProcesses: Process[] = [
     slaDays: 10,
     category: 'Amortecedor',
   },
+  {
+    id: 'DEV-1008',
+    type: 'Devolução Comum',
+    customer: 'Oficina Central',
+    product: 'Correia do Alternador',
+    sku: 'CA-700',
+    supplier: 'Gates',
+    seller: 'Alex',
+    requestDate: daysAgo(20), // 20 days pending to be grouped
+    value: 120.0,
+    status: 'Produto Recebido',
+    slaDays: 20,
+    category: 'Outros',
+  },
+  {
+    id: 'GRT-1009',
+    type: 'Garantia',
+    customer: 'Auto Peças Silva',
+    product: 'Vela de Ignição Iridium',
+    sku: 'VI-610',
+    supplier: 'NGK Brasil',
+    seller: 'João Pedro',
+    requestDate: daysAgo(16), // 16 days pending
+    value: 180.0,
+    status: 'Produto Recebido',
+    slaDays: 16,
+    category: 'Outros',
+  },
+  {
+    id: 'GRT-1010',
+    type: 'Garantia',
+    customer: 'Centro Automotivo RJ',
+    product: 'Cabo de Vela',
+    sku: 'CV-605',
+    supplier: 'NGK Brasil',
+    seller: 'Ana',
+    requestDate: daysAgo(5), // Newer item grouping with older item
+    value: 80.0,
+    status: 'Produto Recebido',
+    slaDays: 5,
+    category: 'Outros',
+  },
 ]
 
 export const generateId = () => `PRC-${Math.floor(Math.random() * 10000) + 2000}`

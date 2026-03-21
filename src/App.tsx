@@ -9,6 +9,7 @@ import ProcessDetails from './pages/ProcessDetails'
 import NewRequest from './pages/NewRequest'
 import CustomerTracking from './pages/CustomerTracking'
 import SupplierList from './pages/SupplierList'
+import BatchList from './pages/BatchList'
 import NotFound from './pages/NotFound'
 import { ProcessProvider } from './contexts/ProcessContext'
 import { SupplierProvider } from './contexts/SupplierContext'
@@ -27,6 +28,7 @@ const App = () => (
               <Route path="/processos" element={<ProcessList />} />
               <Route path="/processos/novo" element={<NewRequest />} />
               <Route path="/processos/:id" element={<ProcessDetails />} />
+              <Route path="/lotes" element={<BatchList />} />
               <Route path="/fornecedores" element={<SupplierList />} />
               {/* Placeholder routes to avoid 404s in navigation */}
               <Route
